@@ -23,7 +23,7 @@ Homepage = "https://github.com/domdfcoding/domdf-folium-tools"
 "Source Code" = "https://github.com/domdfcoding/domdf-folium-tools"
 
 [tool.whey]
-base-classifiers = []
+base-classifiers = [ "Typing :: Typed",]
 python-versions = [ "3.9", "3.10", "3.11", "3.12", "3.13",]
 python-implementations = [ "CPython",]
 platforms = [ "Windows", "macOS", "Linux",]
