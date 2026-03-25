@@ -26,8 +26,76 @@ Miscellaneous utilities for folium/leaflet.
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+# stdlib
+from random import Random
+from typing import Any, Literal, TypedDict, Union
+
+# 3rd party
+import folium
+from folium.template import Template
+
+__all__ = ["Coordinates", "FeatureCollection", "embed_styles", "set_branca_random_seed"]
+
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2026 Dominic Davis-Foster"
 __license__: str = "MIT License"
 __version__: str = "0.0.0"
 __email__: str = "dominic@davis-foster.co.uk"
+
+
+def set_branca_random_seed(seed: Union[str, int]) -> None:
+	"""
+	Use a fixed random number generator seed for branca (affects element IDs e.g. folium's ``map_{id}``).
+
+	:param seed:
+	"""
+
+	# 3rd party
+	from branca import element  # nodep
+
+	rand = Random(seed)
+
+	def urandom(size: int) -> bytes:
+		return rand.randbytes(size)
+
+	element.urandom = urandom
+
+
+def embed_styles(m: folium.Map, custom_css: str) -> folium.Element:
+	"""
+	Embed the map's custom CSS into the HTML.
+
+	:param m:
+	:param custom_css: CSS as a string.
+	"""
+
+	class EmbeddedStyles(folium.MacroElement):
+		_template = Template(
+				f"""
+			{{% macro header(this, kwargs) %}}
+				<style>
+					{custom_css}
+				</style>
+			{{% endmacro %}}
+	""",
+				)
+
+	return EmbeddedStyles().add_to(m)
+
+
+class Coordinates(TypedDict):
+	"""
+	Coordinates as a dictionary.
+	"""
+
+	latitude: float
+	longitude: float
+
+
+class FeatureCollection(TypedDict):
+	"""
+	Represents a GeoJSON feature collection.
+	"""
+
+	type: Literal["FeatureCollection"]
+	features: list[Any]  # TODO: type
