@@ -27,13 +27,15 @@ Modified folium elements.
 #
 
 # stdlib
-from typing import TypeVar
+from collections import OrderedDict
+from typing import NamedTuple, TypeVar
 
 # 3rd party
+import branca.element
 import folium
 from folium.template import Template
 
-__all__ = ["NLSTileLayer", "Sidebar", "add_to", "set_id"]
+__all__ = ["Components", "NLSTileLayer", "Sidebar", "add_to", "render_figure", "set_id"]
 
 _E = TypeVar("_E", bound=folium.Element)
 
@@ -106,3 +108,48 @@ class Sidebar(folium.MacroElement):
 	def __init__(self):
 		super().__init__()
 		self._name = "Sidebar"
+
+
+class Components(NamedTuple):
+	"""
+	Figure elements produced by :func:`~.render_figure`.
+	"""
+
+	#: Header tags
+	header: str
+	#: Page body tags
+	body: str
+	#: Javascript code to insert within `<script>` tags.
+	script: str
+	#: Script tags to load external javascript
+	scripts: str
+
+
+def render_figure(figure: branca.element.Figure) -> Components:
+	"""
+	Render a figure for insertion into another template (flask, jinja2 etc.).
+
+	:param figure:
+	"""
+
+	for child in figure._children.values():
+		child.render()
+
+	header_elems = OrderedDict()
+	js_libs = branca.element.Element()
+	js_libs._parent = figure
+
+	for name, elem in figure.header._children.items():
+		if isinstance(elem, branca.element.JavascriptLink):
+			js_libs.add_child(elem, name)
+		else:
+			header_elems[name] = elem
+
+	figure.header._children = header_elems
+
+	return Components(
+			header=figure.header.render(),
+			body=figure.html.render(),
+			script=figure.script.render(),
+			scripts=js_libs.render(),
+			)

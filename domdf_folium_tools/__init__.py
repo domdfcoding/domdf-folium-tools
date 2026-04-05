@@ -51,7 +51,7 @@ def set_branca_random_seed(seed: Union[str, int]) -> None:
 	"""
 
 	# 3rd party
-	from branca import element  # nodep
+	from branca import element
 
 	rand = Random(seed)
 
