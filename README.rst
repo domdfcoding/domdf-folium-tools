@@ -77,7 +77,7 @@ domdf-folium-tools
 .. |language| image:: https://img.shields.io/github/languages/top/domdfcoding/domdf-folium-tools
 	:alt: GitHub top language
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/domdfcoding/domdf-folium-tools/v0.1.0b2
+.. |commits-since| image:: https://img.shields.io/github/commits-since/domdfcoding/domdf-folium-tools/v0.1.0b3
 	:target: https://github.com/domdfcoding/domdf-folium-tools/pulse
 	:alt: GitHub commits since tagged version
 
