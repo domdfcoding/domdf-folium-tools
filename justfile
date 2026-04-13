@@ -21,5 +21,18 @@ vdiff:
 bare-ignore:
 	greppy '# type:? *ignore(?!\[|\w)' -s
 
-lint: unused-imports incomplete-defs bare-ignore
+lint: unused-imports incomplete-defs bare-ignore myts
 	tox -n qa
+
+myts:
+	npx tsc --noEmit
+
+build:
+	npm pack
+	tox -e build
+
+js:
+	npm run build
+
+licence-report:
+	npx license-report --only=prod --output html > licence-report.html

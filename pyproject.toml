@@ -29,6 +29,7 @@ python-implementations = [ "CPython",]
 platforms = [ "Windows", "macOS", "Linux",]
 license-key = "MIT"
 package = "domdf_folium_tools"
+additional-files = [ "include domdf_folium_tools/domdf-folium-tools.js",]
 
 [tool.importcheck]
 

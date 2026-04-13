@@ -20,3 +20,12 @@ python_versions:
  - "3.11"
  - "3.12"
  - "3.13"
+
+additional_ignore:
+ - node_modules
+
+manifest_additional:
+  - include domdf_folium_tools/domdf-folium-tools.js
+
+exclude_files:
+  - justfile
