@@ -9,7 +9,7 @@
  */
 export const PolyMarker = L.Marker.extend({
 	// TODO: highlight polygon when marker clicked
-	initialize: function (latlng: L.LatLng, polyPoints: L.LatLngExpression[][], options: L.MarkerOptions) {
+	initialize: function(latlng: L.LatLng, polyPoints: L.LatLngExpression[][], options: L.MarkerOptions) {
 		// @ts-expect-error  // Thinks initialize doesn't exist but it does
 		L.Marker.prototype.initialize.call(this, latlng, options);
 		this._polygons = [];
@@ -26,7 +26,7 @@ export const PolyMarker = L.Marker.extend({
 		}
 	},
 
-	onAdd: function (map: L.Map) {
+	onAdd: function(map: L.Map) {
 		console.log('Add polygon', this._polygon);
 		L.Marker.prototype.onAdd.call(this, map);
 		if (this._polygons) {
@@ -38,7 +38,7 @@ export const PolyMarker = L.Marker.extend({
 		return this;
 	},
 
-	onRemove: function (map: L.Map) {
+	onRemove: function(map: L.Map) {
 		// TODO: if marker removed because offscreen the polygon goes too!
 		console.log('Remove polygon', this._polygon);
 		L.Marker.prototype.onRemove.call(this, map);
@@ -49,5 +49,5 @@ export const PolyMarker = L.Marker.extend({
 		}
 
 		return this;
-	}
+	},
 });

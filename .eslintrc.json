@@ -23,6 +23,8 @@
         "no-throw-literal": 0,
         "indent": ["error", "tab"],
         "no-tabs": 0,
+        "space-before-function-paren": 0,
+        "comma-dangle": 0,
         "@typescript-eslint/no-unused-vars": [
             "error",
             {

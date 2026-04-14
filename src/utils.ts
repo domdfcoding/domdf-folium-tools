@@ -4,7 +4,7 @@
  * @returns The results of the Promises.
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-export function serial (funcs: Function[]): Promise<[]> {
+export function serial(funcs: Function[]): Promise<[]> {
 	return funcs.reduce((promise, func) => promise.then(result => func().then(Array.prototype.concat.bind(result))),
 		Promise.resolve([]));
 }

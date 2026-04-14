@@ -29,3 +29,9 @@ manifest_additional:
 
 exclude_files:
   - justfile
+
+extra_formate_deps:
+ - formate-js>=0.1.0
+
+extra_formate_types:
+ - ts

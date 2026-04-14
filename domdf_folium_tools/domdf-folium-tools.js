@@ -1,5 +1,33 @@
 "use strict";
 (() => {
+  // src/markergroup.ts
+  var MarkerGroup = L.Layer.extend({
+    initialize: function(cluster, _options) {
+      console.log("Initialize called");
+      this._markers = [];
+      this._marker_cluster = cluster;
+    },
+    addLayers: function(layers) {
+      this._markers.push(...layers);
+      if (this._map) {
+        this._marker_cluster.addLayers(layers);
+      }
+    },
+    onRemove: function(_map) {
+      this._map = null;
+      console.log("Removing markers", this._markers);
+      this._marker_cluster.removeLayers(this._markers);
+      return this;
+    },
+    onAdd: function(map) {
+      this._map = map;
+      if (this._markers !== void 0) {
+        this._marker_cluster.addLayers(this._markers);
+      }
+      return this;
+    }
+  });
+
   // src/polymarker.ts
   var PolyMarker = L.Marker.extend({
     // TODO: highlight polygon when marker clicked
@@ -40,34 +68,6 @@
     }
   });
 
-  // src/markergroup.ts
-  var MarkerGroup = L.Layer.extend({
-    initialize: function(cluster, _options) {
-      console.log("Initialize called");
-      this._markers = [];
-      this._marker_cluster = cluster;
-    },
-    addLayers: function(layers) {
-      this._markers.push(...layers);
-      if (this._map) {
-        this._marker_cluster.addLayers(layers);
-      }
-    },
-    onRemove: function(_map) {
-      this._map = null;
-      console.log("Removing markers", this._markers);
-      this._marker_cluster.removeLayers(this._markers);
-      return this;
-    },
-    onAdd: function(map) {
-      this._map = map;
-      if (this._markers !== void 0) {
-        this._marker_cluster.addLayers(this._markers);
-      }
-      return this;
-    }
-  });
-
   // src/utils.ts
   function serial(funcs) {
     return funcs.reduce(
@@ -75,4 +75,8 @@
       Promise.resolve([])
     );
   }
+  // src/main.ts
+  L.PolyMarker = PolyMarker;
+  L.MarkerGroup = MarkerGroup;
+  L.Util.serial = serial;
 })();
