@@ -32,6 +32,7 @@ from typing import Any, Optional, Union
 
 # 3rd party
 from folium import CustomIcon, DivIcon, Icon, Popup, Tooltip
+from folium.elements import JSCSSMixin
 from folium.map import Layer, Marker
 from folium.plugins import MarkerCluster as FoliumMarkerCluster
 from folium.template import Template
@@ -90,7 +91,7 @@ class MarkerCluster(FoliumMarkerCluster):
 		self.max_cluster_radius_function = max_cluster_radius_function
 
 
-class MarkerGroup(Layer):  # noqa: PRM002
+class MarkerGroup(JSCSSMixin, Layer):  # noqa: PRM002
 	r"""
 	A fake grouping of markers in a marker cluster.
 
@@ -138,7 +139,7 @@ class MarkerGroup(Layer):  # noqa: PRM002
 		self.options = remove_empty(**kwargs)
 
 
-class PolyMarker(Marker):  # noqa: PRM002
+class PolyMarker(JSCSSMixin, Marker):  # noqa: PRM002
 	r"""
 	A Leaflet Marker which also adds a polygon (or polygons).
 
