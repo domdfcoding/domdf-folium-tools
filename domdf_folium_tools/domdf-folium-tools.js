@@ -7,9 +7,15 @@
       this._markers = [];
       this._marker_cluster = cluster;
     },
-    addLayers: function(layers) {
+    /**
+     * Add layers (markers) to the group and to the actual marker cluster.
+     *
+     * @param layers The layers/markers to add.
+     * @param addToCluster Whether to add the markers to the marker cluster. Default true.
+     */
+    addLayers: function(layers, addToCluster = true) {
       this._markers.push(...layers);
-      if (this._map) {
+      if (this._map && addToCluster) {
         this._marker_cluster.addLayers(layers);
       }
     },

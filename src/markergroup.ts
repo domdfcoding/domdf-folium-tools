@@ -13,10 +13,16 @@ export const MarkerGroup = L.Layer.extend({
 		this._marker_cluster = cluster;
 	},
 
-	addLayers: function(layers: L.Layer[]) {
+	/**
+	 * Add layers (markers) to the group and to the actual marker cluster.
+	 *
+	 * @param layers The layers/markers to add.
+	 * @param addToCluster Whether to add the markers to the marker cluster. Default true.
+	 */
+	addLayers: function(layers: L.Layer[], addToCluster: boolean = true) {
 		this._markers.push(...layers);
 
-		if (this._map) {
+		if (this._map && addToCluster) {
 			// Don't add if the layer isn't visible
 			this._marker_cluster.addLayers(layers);
 		}
