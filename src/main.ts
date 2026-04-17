@@ -11,4 +11,3 @@ L.MarkerGroup = MarkerGroup;
 
 // @ts-expect-error  // Doesn't like setting attribute on L
 L.Util.serial = serial;
-
