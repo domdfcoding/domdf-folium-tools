@@ -35,7 +35,15 @@ import branca.element
 import folium
 from folium.template import Template
 
-__all__ = ["Components", "NLSTileLayer", "Sidebar", "add_to", "render_figure", "set_id"]
+__all__ = [
+		"add_to",
+		"Components",
+		"NLSTileLayer",
+		"Preload",
+		"render_figure",
+		"set_id",
+		"Sidebar",
+		]
 
 _E = TypeVar("_E", bound=folium.Element)
 
@@ -152,4 +160,39 @@ def render_figure(figure: branca.element.Figure) -> Components:
 			body=figure.html.render(),
 			script=figure.script.render(),
 			scripts=js_libs.render(),
+			)
+
+
+class Preload(branca.element.MacroElement):
+	"""
+	Adds preload tags to the HTML header.
+
+	Useful for avoiding marker image "pop-in".
+	"""
+
+	def __init__(self):
+		super().__init__()
+		self._name = "Preload"
+		self._preloads = []
+
+	def add_preload(self, url: str, load_as: str) -> None:
+		"""
+		Add a URL to be preloaded.
+
+		:param url:
+		:param load_as: The resource type, such as ``image``, ``style``, ``script``, ``font``.
+		"""
+
+		# TODO: media queries
+
+		self._preloads.append((url, load_as))
+
+	_template = Template(
+			"""
+{%- macro header(this, kwargs)%}
+	{%- for (url, load_as) in this._preloads -%}
+		<link rel="preload" href="{{ url }}" as="{{ load_as }}" />
+	{% endfor -%}
+{% endmacro -%}
+		""",
 			)
