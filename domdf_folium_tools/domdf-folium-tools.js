@@ -19,14 +19,13 @@
       }
     },
     /**
-    	 * Like addLayers, adds to the internal list of markers but doesn't add to map.
-
-    	 *
-    	 * @param layers The layers/markers to add.
-    	 * @param addToCluster Whether to add the markers to the marker cluster. Default true.
-    	 *
-    	 * @returns The list of markers to add to the map (empty if the layer is not visible)
-    	 */
+     * Like addLayers, adds to the internal list of markers but doesn't add to map.
+     *
+     * @param layers The layers/markers to add.
+     * @param addToCluster Whether to add the markers to the marker cluster. Default true.
+     *
+     * @returns The list of markers to add to the map (empty if the layer is not visible)
+     */
     /*
     */
     internLayers: function(layers, addToCluster = true) {
