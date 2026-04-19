@@ -20,7 +20,7 @@
     },
     /**
     	 * Like addLayers, adds to the internal list of markers but doesn't add to map.
-    
+
     	 *
     	 * @param layers The layers/markers to add.
     	 * @param addToCluster Whether to add the markers to the marker cluster. Default true.
@@ -98,8 +98,29 @@
       Promise.resolve([])
     );
   }
+  function disableInteraction(map, mapElement) {
+    map.dragging.disable();
+    map.touchZoom.disable();
+    map.doubleClickZoom.disable();
+    map.scrollWheelZoom.disable();
+    map.boxZoom.disable();
+    map.keyboard.disable();
+    mapElement.style.cursor = "default";
+  }
+  function enableInteraction(map, mapElement) {
+    map.dragging.enable();
+    map.touchZoom.enable();
+    map.doubleClickZoom.enable();
+    map.scrollWheelZoom.enable();
+    map.boxZoom.enable();
+    map.keyboard.enable();
+    mapElement.style.cursor = "grab";
+  }
+
   // src/main.ts
   L.PolyMarker = PolyMarker;
   L.MarkerGroup = MarkerGroup;
   L.Util.serial = serial;
+  L.Util.disableInteraction = disableInteraction;
+  L.Util.enableInteraction = enableInteraction;
 })();

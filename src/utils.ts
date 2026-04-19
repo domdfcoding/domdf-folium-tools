@@ -8,3 +8,25 @@ export function serial(funcs: Function[]): Promise<[]> {
 	return funcs.reduce((promise, func) => promise.then(result => func().then(Array.prototype.concat.bind(result))),
 		Promise.resolve([]));
 }
+
+export function disableInteraction(map: L.Map, mapElement: HTMLElement) {
+	map.dragging.disable();
+	map.touchZoom.disable();
+	map.doubleClickZoom.disable();
+	map.scrollWheelZoom.disable();
+	map.boxZoom.disable();
+	map.keyboard.disable();
+	// if (map.tap) map.tap.disable();
+	mapElement.style.cursor = 'default';
+}
+
+export function enableInteraction(map: L.Map, mapElement: HTMLElement) {
+	map.dragging.enable();
+	map.touchZoom.enable();
+	map.doubleClickZoom.enable();
+	map.scrollWheelZoom.enable();
+	map.boxZoom.enable();
+	map.keyboard.enable();
+	// if (map.tap) map.tap.enable();
+	mapElement.style.cursor = 'grab';
+}
