@@ -24,6 +24,11 @@ bare-ignore:
 lint: unused-imports incomplete-defs bare-ignore myts
 	tox -n qa
 
+uncomm:
+  git status -uall --ignored
+
+# Custom commands can be added below this comment
+
 myts:
 	npx tsc --noEmit
 
