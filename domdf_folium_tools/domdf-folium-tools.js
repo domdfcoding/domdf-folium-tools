@@ -69,7 +69,7 @@
       }
     },
     onAdd: function(map) {
-      console.log("Add polygon", this._polygon);
+      console.log("Add polygons", this._polygons);
       L.Marker.prototype.onAdd.call(this, map);
       if (this._polygons) {
         this._polygons.forEach((p) => {
@@ -79,7 +79,7 @@
       return this;
     },
     onRemove: function(map) {
-      console.log("Remove polygon", this._polygon);
+      console.log("Remove polygons", this._polygons);
       L.Marker.prototype.onRemove.call(this, map);
       if (this._polygons) {
         this._polygons.forEach((p) => {
@@ -87,6 +87,11 @@
         });
       }
       return this;
+    },
+    polygonsBindPopup: function(content, options) {
+      this._polygons.forEach((p) => {
+        p.bindPopup(content, options);
+      });
     }
   });
 

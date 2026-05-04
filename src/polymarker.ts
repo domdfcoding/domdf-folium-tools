@@ -27,7 +27,7 @@ export const PolyMarker = L.Marker.extend({
 	},
 
 	onAdd: function(map: L.Map) {
-		console.log('Add polygon', this._polygon);
+		console.log('Add polygons', this._polygons);
 		L.Marker.prototype.onAdd.call(this, map);
 		if (this._polygons) {
 			this._polygons.forEach((p: L.Polygon) => {
@@ -40,7 +40,7 @@ export const PolyMarker = L.Marker.extend({
 
 	onRemove: function(map: L.Map) {
 		// TODO: if marker removed because offscreen the polygon goes too!
-		console.log('Remove polygon', this._polygon);
+		console.log('Remove polygons', this._polygons);
 		L.Marker.prototype.onRemove.call(this, map);
 		if (this._polygons) {
 			this._polygons.forEach((p: L.Polygon) => {
@@ -49,5 +49,14 @@ export const PolyMarker = L.Marker.extend({
 		}
 
 		return this;
+	},
+
+	polygonsBindPopup: function(
+		content: ((layer: L.Layer) => L.Content) | L.Content | L.Popup,
+		options?: L.PopupOptions,
+	) {
+		this._polygons.forEach((p: L.Polygon) => {
+			p.bindPopup(content, options);
+		});
 	},
 });
