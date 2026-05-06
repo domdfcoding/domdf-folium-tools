@@ -120,8 +120,8 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 					"https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/pa7_leaflet_hm.min.js",
 					),
 			(
-					"domdf_folium_tools_heatmap_js",
-					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/heatmap.min.js",
+					"domdf_folium_tools_js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/domdf-folium-tools.min.js",
 					),
 			]
 	default_css = [
@@ -323,8 +323,8 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 					"https://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js",  # TODO: jsdelivr
 					),
 			(
-					"domdf_folium_tools_heatmap_js",
-					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/heatmap.min.js",
+					"domdf_folium_tools_js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/domdf-folium-tools.min.js",
 					),
 			]
 	default_css = [
