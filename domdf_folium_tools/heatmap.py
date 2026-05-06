@@ -88,12 +88,12 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 				{times : times, currentTime: new Date(1)}
 			);
 
-			var {{this._control_name}} = new L.Control.TimeDimensionCustom(
+			var {{this._control_name}} = new L.Control.TimeDimensionHeatmap(
 				{{this.index | tojson}},
 				{{ this.control_options | tojson(indent=20) }},
 			).addTo({{this._parent.get_name()}});
 
-			var {{this.get_name()}} = new TDHeatmap(
+			var {{this.get_name()}} = new L.TDHeatmap(
 				heatmapData,
 				{heatmapOptions: {{ this.heatmap_options|tojson(indent=20) }}},
 			);
@@ -344,12 +344,12 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 				{times : times, currentTime: new Date(1)}
 			);
 
-			var {{this._control_name}} = new L.Control.TimeDimensionCustom(
+			var {{this._control_name}} = new L.Control.TimeDimensionHeatmap(
 				{{this.index | tojson}},
 				{{ this.control_options | tojson(indent=20) }},
 			).addTo({{this._parent.get_name()}});
 
-			var {{this.get_name()}} = new TDHeatLayer(
+			var {{this.get_name()}} = new L.TDHeatLayer(
 				heatmapData,
 				{heatmapOptions: {{ this.heatmap_options|tojson }}
 			});
