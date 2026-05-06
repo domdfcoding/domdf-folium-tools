@@ -30,6 +30,7 @@ Cumulative heatmaps – data from all previous time windows is included in the "
 #
 
 # stdlib
+import json
 from typing import Optional, Union
 
 # 3rd party
@@ -44,7 +45,6 @@ from domdf_folium_tools import __version__
 __all__ = ["HeatLayerWithTime", "HeatMapWithTime"]
 
 # TODO: tojson filter that doesn't quote dict keys
-# TODO: option to specify heatmapData variable name; maybe embed option?
 
 
 class HeatMapWithTime(JSCSSMixin, Layer):
@@ -54,6 +54,7 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 	:param data: The points you want to plot. Nested list of points in the form ``[lat, lng]`` or ``[lat, lng, weight]``.
 		The outer list corresponds to the various time steps in sequential order.
 		Weight is in ``(0, 1]`` range and defaults to ``1`` if not specified for a point.
+	:param data_variable: A variable to use for the data (e.g. loaded from an external file) rather than embedding the data directly.
 	:param index: Index giving the label (or timestamp) of the elements of data.
 		Should have the same length as data, or is replaced by a simple count if not specified.
 	:param name: The name of the Layer, as it will appear in LayerControls.
@@ -94,7 +95,7 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 			).addTo({{this._parent.get_name()}});
 
 			var {{this.get_name()}} = new L.TDHeatmap(
-				heatmapData,
+				{{ this.data_variable }},
 				{heatmapOptions: {{ this.heatmap_options|tojson(indent=20) }}},
 			);
 
@@ -134,6 +135,7 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 	def __init__(
 			self,
 			data: list[list[Union[tuple[float, float, float], tuple[float, float]]]],
+			data_variable: Optional[str] = None,
 			index: Optional[list] = None,
 			name: Optional[str] = None,
 			radius: int = 15,
@@ -160,6 +162,7 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 
 		# Input data.
 		self.data = data
+		self.data_variable = data_variable or json.dumps(data)
 		self.index = (index if index is not None else [str(i) for i in range(1, len(data) + 1)])
 		if len(self.data) != len(self.index):
 			raise ValueError("Input data and index are not of compatible lengths.")  # noqa
@@ -226,6 +229,7 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 
 	:param data: The points you want to plot. Nested list of points in the form ``[lat, lng]``.
 		The outer list corresponds to the various time steps in sequential order.
+	:param data_variable: A variable to use for the data (e.g. loaded from an external file) rather than embedding the data directly.
 	:param index: Index giving the label (or timestamp) of the elements of data.
 		Should have the same length as data, or is replaced by a simple count if not specified.
 	:param name: The name of the Layer, as it will appear in LayerControls.
@@ -249,6 +253,7 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 	def __init__(
 			self,
 			data: list[list[tuple[float, float]]],
+			data_variable: Optional[str] = None,
 			index: Optional[list] = None,
 			name: Optional[str] = None,
 			radius: int = 25,
@@ -273,6 +278,7 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 
 		# Input data.
 		self.data = data
+		self.data_variable = data_variable or json.dumps(data)
 		self.index = (index if index is not None else [str(i) for i in range(1, len(data) + 1)])
 		if len(self.data) != len(self.index):
 			raise ValueError("Input data and index are not of compatible lengths.")  # noqa
@@ -350,7 +356,7 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 			).addTo({{this._parent.get_name()}});
 
 			var {{this.get_name()}} = new L.TDHeatLayer(
-				heatmapData,
+				{{ this.data_variable }},
 				{heatmapOptions: {{ this.heatmap_options|tojson }}
 			});
 
