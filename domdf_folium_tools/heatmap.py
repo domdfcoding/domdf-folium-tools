@@ -320,7 +320,7 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 					),
 			(
 					"leaflet-heat.js",
-					"https://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js",  # TODO: jsdelivr
+					"https://cdn.jsdelivr.net/gh/leaflet/Leaflet.heat@0.2.0/dist/leaflet-heat.js",
 					),
 			(
 					"domdf_folium_tools_js",
