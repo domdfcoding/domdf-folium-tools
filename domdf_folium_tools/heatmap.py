@@ -34,6 +34,7 @@ import json
 from typing import Optional, Union
 
 # 3rd party
+from folium import Control
 from folium.elements import JSCSSMixin
 from folium.map import Layer
 from folium.template import Template
@@ -45,6 +46,101 @@ from domdf_folium_tools import __version__
 __all__ = ["HeatLayerWithTime", "HeatMapWithTime"]
 
 # TODO: tojson filter that doesn't quote dict keys
+# TODO: validate that TimeDimensionControl has been added when rendering
+
+
+class TimeDimensionControl(Control):
+	"""
+	Create a ``TimeDimensionControl``.
+
+	:param index: Index giving the label (or timestamp) of the elements of data.
+	:param auto_play: Automatically play the animation across time.
+	:param display_index: Display the index (usually time) in the time control.
+	:param index_steps: Steps to take in the index dimension between animation steps.
+	:param min_speed: Minimum fps speed for animation.
+	:param max_speed: Maximum fps speed for animation.
+	:param speed_step: Step between different fps speeds on the speed slider.
+	:param position: Position string for the time slider. Format: 'bottom/top'+'left/right'.
+	"""
+
+	_template = Template(
+			"""
+		{% macro script(this, kwargs) %}
+
+			var times = {{this.times}};
+
+			{{this._parent.get_name()}}.timeDimension = L.timeDimension(
+				{times : times, currentTime: new Date(1)}
+			);
+
+			var {{ this.get_name() }} = new L.Control.TimeDimensionHeatmap(
+				{{this.index | tojson}},
+				{{ this.options | tojson(indent=20) }},
+			).addTo({{this._parent.get_name()}});
+
+		{% endmacro %}
+		""".replace('\t', "    "),
+			)
+
+	default_js = [
+			(
+					"iso8601",
+					"https://cdn.jsdelivr.net/npm/iso8601-js-period@0.2.1/iso8601.min.js",
+					),
+			(
+					"leaflet.timedimension.min.js",
+					"https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.min.js",
+					),
+			(
+					"domdf_folium_tools_js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/domdf-folium-tools.min.js",
+					),
+			]
+	default_css = [
+			(
+					"leaflet.timedimension.control.min.css",
+					"https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.control.css",
+					),
+			]
+
+	def __init__(
+			self,
+			index: list,
+			auto_play: bool = False,
+			display_index: bool = True,
+			index_steps: int = 1,
+			min_speed: float = 0.1,
+			max_speed: float = 10,
+			speed_step: float = 0.1,
+			position: str = "bottomleft",
+			):
+		super().__init__(control="L.Control.TimeDimensionHeatmap", position=position)
+		self._name = "TimeDimensionControl"
+
+		self.index = index
+		self.times = list(range(1, len(index) + 1))
+
+		# TODO: use `parse_options`
+		self.options = {
+				"autoPlay": auto_play,
+				"displayDate": display_index,
+				"minSpeed": min_speed,
+				"maxSpeed": max_speed,
+				"position": position,
+				"speedStep": speed_step,
+				"timeSteps": index_steps,
+				"backwardButton": True,
+				"forwardButton": True,
+				"limitSliders": True,
+				"limitMinimumRange": 5,
+				"loopButton": True,
+				"speedSlider": True,
+				"timeSlider": True,
+				"playButton": True,
+				"playReverseButton": True,
+				"timeSliderDragUpdate": False,
+				"styleNS": "leaflet-control-timecontrol",
+				}
 
 
 class HeatMapWithTime(JSCSSMixin, Layer):
@@ -67,13 +163,6 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 		Colour can be a name (``'red'``), RGB values (``'rgb(255,0,0)'``) or a hex number (``'#FF0000'``).
 	:param use_local_extrema: Defines whether the heatmap uses a global extrema set found from the input data
 		OR a local extrema (the maximum and minimum of the currently displayed view).
-	:param auto_play: Automatically play the animation across time.
-	:param display_index: Display the index (usually time) in the time control.
-	:param index_steps: Steps to take in the index dimension between animation steps.
-	:param min_speed: Minimum fps speed for animation.
-	:param max_speed: Maximum fps speed for animation.
-	:param speed_step: Step between different fps speeds on the speed slider.
-	:param position: Position string for the time slider. Format: 'bottom/top'+'left/right'.
 	:param overlay: Adds the layer as an optional overlay (True) or the base layer (False).
 	:param control: Whether the Layer will be included in LayerControls.
 	:param show: Whether the layer will be shown on opening.
@@ -82,36 +171,15 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 	_template = Template(
 			"""
 		{% macro script(this, kwargs) %}
-
-			var times = {{this.times}};
-
-			{{this._parent.get_name()}}.timeDimension = L.timeDimension(
-				{times : times, currentTime: new Date(1)}
-			);
-
-			var {{this._control_name}} = new L.Control.TimeDimensionHeatmap(
-				{{this.index | tojson}},
-				{{ this.control_options | tojson(indent=20) }},
-			).addTo({{this._parent.get_name()}});
-
 			var {{this.get_name()}} = new L.TDHeatmap(
 				{{ this.data_variable }},
-				{heatmapOptions: {{ this.heatmap_options|tojson(indent=20) }}},
+				{heatmapOptions: {{ this.options|tojson(indent=20) }}},
 			);
-
 		{% endmacro %}
 		""".replace('\t', "    "),
 			)
 
 	default_js = [
-			(
-					"iso8601",
-					"https://cdn.jsdelivr.net/npm/iso8601-js-period@0.2.1/iso8601.min.js",
-					),
-			(
-					"leaflet.timedimension.min.js",
-					"https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.min.js",
-					),
 			(
 					"heatmap.min.js",
 					"https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/pa7_hm.min.js",
@@ -123,12 +191,6 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 			(
 					"domdf_folium_tools_js",
 					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/domdf-folium-tools.min.js",
-					),
-			]
-	default_css = [
-			(
-					"leaflet.timedimension.control.min.css",
-					"https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.control.css",
 					),
 			]
 
@@ -145,20 +207,12 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 			scale_radius: bool = False,
 			gradient: Optional[dict[float, str]] = None,
 			use_local_extrema: bool = False,
-			auto_play: bool = False,
-			display_index: bool = True,
-			index_steps: int = 1,
-			min_speed: float = 0.1,
-			max_speed: float = 10,
-			speed_step: float = 0.1,
-			position: str = "bottomleft",
 			overlay: bool = True,
 			control: bool = True,
 			show: bool = True,
 			):
 		super().__init__(name=name, overlay=overlay, control=control, show=show)
 		self._name = "HeatMap"
-		self._control_name = self.get_name() + "Control"
 
 		# Input data.
 		self.data = data
@@ -168,8 +222,7 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 			raise ValueError("Input data and index are not of compatible lengths.")  # noqa
 		self.times = list(range(1, len(data) + 1))
 
-		# Heatmap settings.
-		self.heatmap_options = parse_options(
+		self.options = parse_options(
 				radius=radius,
 				blur=blur,
 				min_opacity=min_opacity,
@@ -179,29 +232,6 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 				default_weight=1,
 				gradient=gradient,
 				)
-
-		# Time dimension settings.
-		# TODO: use `parse_options`
-		self.control_options = {
-				"autoPlay": auto_play,
-				"displayDate": display_index,
-				"minSpeed": min_speed,
-				"maxSpeed": max_speed,
-				"position": position,
-				"speedStep": speed_step,
-				"timeSteps": index_steps,
-				"backwardButton": True,
-				"forwardButton": True,
-				"limitSliders": True,
-				"limitMinimumRange": 5,
-				"loopButton": True,
-				"speedSlider": True,
-				"timeSlider": True,
-				"playButton": True,
-				"playReverseButton": True,
-				"timeSliderDragUpdate": False,
-				"styleNS": "leaflet-control-timecontrol",
-				}
 
 	# TODO: def _get_self_bounds(self) -> list[list[Optional[float]]]:
 	# 	"""
@@ -238,13 +268,6 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 	:param min_opacity: The minimum opacity for the heatmap.
 	:param gradient: Mapping of point density values to colours.
 		Colour can be a name (``'red'``), RGB values (``'rgb(255,0,0)'``) or a hex number (``'#FF0000'``).
-	:param auto_play: Automatically play the animation across time.
-	:param display_index: Display the index (usually time) in the time control.
-	:param index_steps: Steps to take in the index dimension between animation steps.
-	:param min_speed: Minimum fps speed for animation.
-	:param max_speed: Maximum fps speed for animation.
-	:param speed_step: Step between different fps speeds on the speed slider.
-	:param position: Position string for the time slider. Format: 'bottom/top'+'left/right'.
 	:param overlay: Adds the layer as an optional overlay (True) or the base layer (False).
 	:param control: Whether the Layer will be included in LayerControls.
 	:param show: Whether the layer will be shown on opening.
@@ -261,20 +284,12 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 			min_opacity: float = 0.05,
 			# max_opacity: float = 0.6,
 			gradient: Optional[dict[float, str]] = None,
-			auto_play: bool = False,
-			display_index: bool = True,
-			index_steps: int = 1,
-			min_speed: float = 0.1,
-			max_speed: float = 10,
-			speed_step: float = 0.1,
-			position: str = "bottomleft",
 			overlay: bool = True,
 			control: bool = True,
 			show: bool = True,  # TODO: max
 			):
 		super().__init__(name=name, overlay=overlay, control=control, show=show)
-		self._name = "HeatMap"
-		self._control_name = self.get_name() + "Control"
+		self._name = "HeatLayer"
 
 		# Input data.
 		self.data = data
@@ -284,46 +299,15 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 			raise ValueError("Input data and index are not of compatible lengths.")  # noqa
 		self.times = list(range(1, len(data) + 1))
 
-		# Heatmap settings.
-		self.heatmap_options = parse_options(
+		self.options = parse_options(
 				radius=radius,
 				blur=blur,
 				min_opacity=min_opacity,
 				# max_opacity=max_opacity,
 				gradient=gradient,
 				)
-		# Time dimension settings.
-		# TODO: use `parse_options`
-		self.control_options = {
-				"autoPlay": auto_play,
-				"displayDate": display_index,
-				"minSpeed": min_speed,
-				"maxSpeed": max_speed,
-				"position": position,
-				"speedStep": speed_step,
-				"timeSteps": index_steps,
-				"backwardButton": True,
-				"forwardButton": True,
-				"limitSliders": True,
-				"limitMinimumRange": 5,
-				"loopButton": True,
-				"speedSlider": True,
-				"timeSlider": True,
-				"playButton": True,
-				"playReverseButton": True,
-				"timeSliderDragUpdate": False,
-				"styleNS": "leaflet-control-timecontrol",
-				}
 
 	default_js = [
-			(
-					"iso8601",
-					"https://cdn.jsdelivr.net/npm/iso8601-js-period@0.2.1/iso8601.min.js",
-					),
-			(
-					"leaflet.timedimension.min.js",
-					"https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.min.js",
-					),
 			(
 					"leaflet-heat.js",
 					"https://cdn.jsdelivr.net/gh/leaflet/Leaflet.heat@0.2.0/dist/leaflet-heat.js",
@@ -333,33 +317,14 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/domdf-folium-tools.min.js",
 					),
 			]
-	default_css = [
-			(
-					"leaflet.timedimension.control.min.css",
-					"https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.control.css",
-					),
-			]
 
 	_template = Template(
 			"""
 		{% macro script(this, kwargs) %}
-
-			var times = {{this.times}};
-
-			{{this._parent.get_name()}}.timeDimension = L.timeDimension(
-				{times : times, currentTime: new Date(1)}
-			);
-
-			var {{this._control_name}} = new L.Control.TimeDimensionHeatmap(
-				{{this.index | tojson}},
-				{{ this.control_options | tojson(indent=20) }},
-			).addTo({{this._parent.get_name()}});
-
 			var {{this.get_name()}} = new L.TDHeatLayer(
 				{{ this.data_variable }},
-				{heatmapOptions: {{ this.heatmap_options|tojson }}
+				{heatmapOptions: {{ this.options|tojson }}
 			});
-
 		{% endmacro %}
 		""".replace('\t', "    "),
 			)
