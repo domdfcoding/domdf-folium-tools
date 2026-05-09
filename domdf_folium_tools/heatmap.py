@@ -31,14 +31,14 @@ Cumulative heatmaps – data from all previous time windows is included in the "
 
 # stdlib
 import json
-from typing import Optional, Union
+from typing import Optional, Union, cast
 
 # 3rd party
 from folium import Control
 from folium.elements import JSCSSMixin
 from folium.map import Layer
 from folium.template import Template
-from folium.utilities import parse_options
+from folium.utilities import TypePosition, parse_options
 
 # this package
 from domdf_folium_tools import __version__
@@ -112,7 +112,7 @@ class TimeDimensionControl(Control):
 			min_speed: float = 0.1,
 			max_speed: float = 10,
 			speed_step: float = 0.1,
-			position: str = "bottomleft",
+			position: Optional[TypePosition] = "bottomleft",
 			):
 		super().__init__(control="L.Control.TimeDimensionHeatmap", position=position)
 		self._name = "TimeDimensionControl"
@@ -126,7 +126,7 @@ class TimeDimensionControl(Control):
 				"displayDate": display_index,
 				"minSpeed": min_speed,
 				"maxSpeed": max_speed,
-				"position": position,
+				"position": cast(str, position),
 				"speedStep": speed_step,
 				"timeSteps": index_steps,
 				"backwardButton": True,
