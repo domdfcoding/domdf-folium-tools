@@ -3,18 +3,6 @@
 *  MIT Licenced
 */
 
-// @ts-expect-error  // No types for Leaflet.Heat
-const PatchedHeatLayer = L.HeatLayer.extend({
-	redraw: function() {
-		if (this._heat && !this._frame && this._map) {
-			if (!this._map._animating) {
-				this._frame = L.Util.requestAnimFrame(this._redraw, this);
-			}
-		}
-		return this;
-	},
-});
-
 export type HeatmapOptions = {
 	heatmapOptions: object | null | undefined;
 };
@@ -107,6 +95,18 @@ export const TDHeatLayer = TDHeatmap.extend({
 			max: 1.0,
 			...options.heatmapOptions || {},
 		};
+
+		// @ts-expect-error  // No types for Leaflet.Heat
+		const PatchedHeatLayer = L.HeatLayer.extend({
+			redraw: function() {
+				if (this._heat && !this._frame && this._map) {
+					if (!this._map._animating) {
+						this._frame = L.Util.requestAnimFrame(this._redraw, this);
+					}
+				}
+				return this;
+			},
+		});
 
 		const layer = new PatchedHeatLayer([], heatmapCfg);
 

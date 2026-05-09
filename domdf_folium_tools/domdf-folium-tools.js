@@ -1,16 +1,6 @@
 "use strict";
 (() => {
   // src/heatmap.ts
-  var PatchedHeatLayer = L.HeatLayer.extend({
-    redraw: function() {
-      if (this._heat && !this._frame && this._map) {
-        if (!this._map._animating) {
-          this._frame = L.Util.requestAnimFrame(this._redraw, this);
-        }
-      }
-      return this;
-    }
-  });
   var TDHeatmap = L.TimeDimension.Layer.extend({
     initialize: function(data, options) {
       const heatmapCfg = {
@@ -81,6 +71,16 @@
         max: 1,
         ...options.heatmapOptions || {}
       };
+      const PatchedHeatLayer = L.HeatLayer.extend({
+        redraw: function() {
+          if (this._heat && !this._frame && this._map) {
+            if (!this._map._animating) {
+              this._frame = L.Util.requestAnimFrame(this._redraw, this);
+            }
+          }
+          return this;
+        }
+      });
       const layer = new PatchedHeatLayer([], heatmapCfg);
       L.TimeDimension.Layer.prototype.initialize.call(this, layer, options);
       this._currentLoadedTime = 0;
