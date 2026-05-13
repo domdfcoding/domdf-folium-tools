@@ -37,7 +37,8 @@ build:
 	tox -e build
 
 js:
-	npm run build
+	npx esbuild src/main.ts --bundle --outfile=domdf_folium_tools/domdf-folium-tools.js --external:leaflet --sourcemap
+	npx esbuild src/_heatmap_main.ts --bundle --outfile=domdf_folium_tools/heatmap.js --external:leaflet --sourcemap
 
 licence-report:
 	npx license-report --only=prod --output html > licence-report.html

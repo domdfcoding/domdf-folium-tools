@@ -92,8 +92,8 @@ class TimeDimensionControl(Control):
 					"https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.min.js",
 					),
 			(
-					"domdf_folium_tools_js",
-					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/domdf-folium-tools.min.js",
+					"domdf_folium_tools_heatmap_js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/heatmap.min.js",
 					),
 			]
 	default_css = [
@@ -189,8 +189,8 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 					"https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/pa7_leaflet_hm.min.js",
 					),
 			(
-					"domdf_folium_tools_js",
-					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/domdf-folium-tools.min.js",
+					"domdf_folium_tools_heatmap_js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/heatmap.min.js",
 					),
 			]
 
@@ -313,8 +313,8 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 					"https://cdn.jsdelivr.net/gh/leaflet/Leaflet.heat@0.2.0/dist/leaflet-heat.js",
 					),
 			(
-					"domdf_folium_tools_js",
-					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/domdf-folium-tools.min.js",
+					"domdf_folium_tools_heatmap_js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/heatmap.min.js",
 					),
 			]
 
