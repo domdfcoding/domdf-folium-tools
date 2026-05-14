@@ -82,21 +82,25 @@ def copy_static_files(
 		static_dir: PathLike,
 		js_files: Iterable[Union[PythonResource, FileOnDisk]],
 		css_files: Iterable[Union[PythonResource, FileOnDisk]],
+		img_files: Iterable[Union[PythonResource, FileOnDisk]],
 		) -> None:
 	"""
-	Copy CSS and JS files into the given directory.
+	Copy CSS, JS and image files into the given directory.
 
 	:param static_dir:
 	:param js_files:
 	:param css_files:
+	:param img_files:
 	"""
 
 	static_dir = PathPlus(static_dir)
 	js_files = list(js_files)
 	css_files = list(css_files)
+	img_files = list(img_files)
 
 	js_dir = static_dir / "js"
 	css_dir = static_dir / "css"
+	img_dir = static_dir / "img"
 
 	if js_files:
 		js_dir.maybe_make(parents=True)
@@ -107,3 +111,8 @@ def copy_static_files(
 		css_dir.maybe_make(parents=True)
 
 		_copy_files(css_files, css_dir)
+
+	if img_files:
+		img_dir.maybe_make(parents=True)
+
+		_copy_files(img_files, img_dir)
