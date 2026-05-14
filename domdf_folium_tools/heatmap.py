@@ -190,6 +190,7 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 		Colour can be a name (``'red'``), RGB values (``'rgb(255,0,0)'``) or a hex number (``'#FF0000'``).
 	:param use_local_extrema: Defines whether the heatmap uses a global extrema set found from the input data
 		OR a local extrema (the maximum and minimum of the currently displayed view).
+	:param default_weight: Default weight for datapoints if not specified in ``data``.
 	:param overlay: Adds the layer as an optional overlay (True) or the base layer (False).
 	:param control: Whether the Layer will be included in LayerControls.
 	:param show: Whether the layer will be shown on opening.
@@ -239,6 +240,7 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 			scale_radius: bool = False,
 			gradient: Optional[dict[float, str]] = None,
 			use_local_extrema: bool = False,
+			default_weight: float = 1.0,
 			overlay: bool = True,
 			control: bool = True,
 			show: bool = True,
@@ -268,7 +270,7 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 				max_opacity=max_opacity,
 				scale_radius=scale_radius,
 				use_local_extrema=use_local_extrema,
-				default_weight=1,
+				default_weight=default_weight,
 				gradient=gradient,
 				)
 
