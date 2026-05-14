@@ -31,7 +31,7 @@ Cumulative heatmaps – data from all previous time windows is included in the "
 
 # stdlib
 import json
-from typing import Optional, Union, cast
+from typing import Optional, TypeVar, Union, cast
 
 # 3rd party
 from folium import Control
@@ -43,7 +43,7 @@ from folium.utilities import TypePosition, parse_options
 # this package
 from domdf_folium_tools import __version__
 
-__all__ = ["HeatLayerWithTime", "HeatMapWithTime"]
+__all__ = ["HeatLayerWithTime", "HeatMapWithTime", "TimeDimensionControl", "validate_input_data"]
 
 # TODO: tojson filter that doesn't quote dict keys
 # TODO: validate that TimeDimensionControl has been added when rendering
@@ -143,13 +143,40 @@ class TimeDimensionControl(Control):
 				}
 
 
+HeatmapDataWeighted = list[list[Union[tuple[float, float, float], tuple[float, float]]]]
+HeatLayerData = list[list[tuple[float, float]]]
+
+_D = TypeVar("_D", HeatmapDataWeighted, HeatLayerData)
+
+
+def validate_input_data(data: _D, index: Optional[list] = None) -> tuple[_D, list]:
+	"""
+	Ensures the data and the index are the same length.
+
+	param data: The points you want to plot. Nested list of points in the form ``[lat, lng]`` or ``[lat, lng, weight]``.
+		The outer list corresponds to the various time steps in sequential order.
+		Weight is in ``(0, 1]`` range.
+	:param index: Index giving the label (or timestamp) of the elements of data.
+		Should have the same length as data, or is replaced by a simple count if not specified.
+	"""
+
+	# TODO: check for other issues
+
+	index = (index if index is not None else [str(i) for i in range(1, len(data) + 1)])
+
+	if len(data) != len(index):
+		raise ValueError("Input data and index are not of compatible lengths.")
+
+	return data, index
+
+
 class HeatMapWithTime(JSCSSMixin, Layer):
 	"""
 	Create a ``HeatMapWithTime`` layer.
 
 	:param data: The points you want to plot. Nested list of points in the form ``[lat, lng]`` or ``[lat, lng, weight]``.
 		The outer list corresponds to the various time steps in sequential order.
-		Weight is in ``(0, 1]`` range and defaults to ``1`` if not specified for a point.
+		Weight is in ``(0, 1]`` range and defaults to ``default_weight`` (or ``1``) if not specified for a point.
 	:param data_variable: A variable to use for the data (e.g. loaded from an external file) rather than embedding the data directly.
 	:param index: Index giving the label (or timestamp) of the elements of data.
 		Should have the same length as data, or is replaced by a simple count if not specified.
@@ -166,6 +193,11 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 	:param overlay: Adds the layer as an optional overlay (True) or the base layer (False).
 	:param control: Whether the Layer will be included in LayerControls.
 	:param show: Whether the layer will be shown on opening.
+
+	.. note::
+
+		If omitting ``data`` to load it from an external file etc. it is advisable to call :func:`~.validate_input_data`
+		on the data and index values to avoid common pitfalls. ``data_variable`` and ``index`` must also be provided and cannot be :py:obj:`None`.
 	"""
 
 	_template = Template(
@@ -196,7 +228,7 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 
 	def __init__(
 			self,
-			data: list[list[Union[tuple[float, float, float], tuple[float, float]]]],
+			data: Optional[HeatmapDataWeighted],
 			data_variable: Optional[str] = None,
 			index: Optional[list] = None,
 			name: Optional[str] = None,
@@ -215,12 +247,19 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 		self._name = "HeatMap"
 
 		# Input data.
-		self.data = data
-		self.data_variable = data_variable or json.dumps(data)
-		self.index = (index if index is not None else [str(i) for i in range(1, len(data) + 1)])
-		if len(self.data) != len(self.index):
-			raise ValueError("Input data and index are not of compatible lengths.")  # noqa
-		self.times = list(range(1, len(data) + 1))
+		if data is None:
+			if not data_variable:
+				raise ValueError("'data_variable' was not specified and 'data' was set to None")
+			if not index:
+				raise ValueError("'index' was not specified and 'data' was set to None")
+
+			self.data_variable = data_variable
+			self.index = index
+		else:
+			data, self.index = validate_input_data(data, index)
+			self.data_variable = data_variable or json.dumps(data)
+
+		self.times = list(range(1, len(self.index) + 1))
 
 		self.options = parse_options(
 				radius=radius,
@@ -271,11 +310,16 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 	:param overlay: Adds the layer as an optional overlay (True) or the base layer (False).
 	:param control: Whether the Layer will be included in LayerControls.
 	:param show: Whether the layer will be shown on opening.
+
+	.. note::
+
+		If omitting ``data`` to load it from an external file etc. it is advisable to call :func:`~.validate_input_data`
+		on the data and index values to avoid common pitfalls. ``data_variable`` and ``index`` must also be provided and cannot be :py:obj:`None`.
 	"""
 
 	def __init__(
 			self,
-			data: list[list[tuple[float, float]]],
+			data: Optional[HeatLayerData],
 			data_variable: Optional[str] = None,
 			index: Optional[list] = None,
 			name: Optional[str] = None,
@@ -292,12 +336,19 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 		self._name = "HeatLayer"
 
 		# Input data.
-		self.data = data
-		self.data_variable = data_variable or json.dumps(data)
-		self.index = (index if index is not None else [str(i) for i in range(1, len(data) + 1)])
-		if len(self.data) != len(self.index):
-			raise ValueError("Input data and index are not of compatible lengths.")  # noqa
-		self.times = list(range(1, len(data) + 1))
+		if data is None:
+			if not data_variable:
+				raise ValueError("'data_variable' was not specified and 'data' was set to None")
+			if not index:
+				raise ValueError("'index' was not specified and 'data' was set to None")
+
+			self.data_variable = data_variable
+			self.index = index
+		else:
+			data, self.index = validate_input_data(data, index)
+			self.data_variable = data_variable or json.dumps(data)
+
+		self.times = list(range(1, len(self.index) + 1))
 
 		self.options = parse_options(
 				radius=radius,
