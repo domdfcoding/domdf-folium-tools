@@ -34,7 +34,7 @@ from typing import Any, Literal, TypedDict, Union
 import folium
 from folium.template import Template
 
-__all__ = ["Coordinates", "FeatureCollection", "embed_styles", "set_branca_random_seed"]
+__all__ = ["Coordinates", "EmbeddedCSSJS", "FeatureCollection", "embed_styles", "set_branca_random_seed"]
 
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2026 Dominic Davis-Foster"
@@ -69,18 +69,36 @@ def embed_styles(m: folium.Map, custom_css: str) -> folium.Element:
 	:param custom_css: CSS as a string.
 	"""
 
-	class EmbeddedStyles(folium.MacroElement):
-		_template = Template(
-				f"""
-			{{% macro header(this, kwargs) %}}
-				<style>
-					{custom_css}
-				</style>
-			{{% endmacro %}}
-	""",
-				)
+	return EmbeddedCSSJS(custom_css=custom_css).add_to(m)
 
-	return EmbeddedStyles().add_to(m)
+
+class EmbeddedCSSJS(folium.MacroElement):
+	"""
+	Embed the map's custom CSS and JavaScript into the HTML.
+
+	:param custom_css: CSS as a string.
+	:param custom_js: JavaScript as a string.
+	"""
+
+	_template = Template(
+			"""
+			{% macro header(this, kwargs) %}
+				<style>
+					{{ this.custom_css }}
+				</style>
+			{% endmacro %}
+
+			{% macro script(this, kwargs) %}
+				{{ this.custom_js }}
+			{% endmacro %}
+	""",
+			)
+
+	def __init__(self, custom_css: str = '', custom_js: str = ''):
+		super().__init__()
+		self._name = "EmbeddedCSSJS"
+		self.custom_css = custom_css
+		self.custom_js = custom_js
 
 
 class Coordinates(TypedDict):
