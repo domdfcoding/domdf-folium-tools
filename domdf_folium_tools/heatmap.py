@@ -153,7 +153,7 @@ def validate_input_data(data: _D, index: Optional[list] = None) -> tuple[_D, lis
 	"""
 	Ensures the data and the index are the same length.
 
-	param data: The points you want to plot. Nested list of points in the form ``[lat, lng]`` or ``[lat, lng, weight]``.
+	:param data: The points you want to plot. Nested list of points in the form ``[lat, lng]`` or ``[lat, lng, weight]``.
 		The outer list corresponds to the various time steps in sequential order.
 		Weight is in ``(0, 1]`` range.
 	:param index: Index giving the label (or timestamp) of the elements of data.

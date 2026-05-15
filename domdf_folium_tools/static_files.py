@@ -48,7 +48,7 @@ def copy_resource(module: str, filename: str, target_dir: PathPlus) -> None:
 	:param target_dir:
 	"""
 
-	(target_dir / filename).write_binary(importlib_resources.read_binary(module, filename))
+	(target_dir / filename).write_bytes(importlib_resources.read_binary(module, filename))
 
 
 class PythonResource(NamedTuple):
