@@ -80,9 +80,9 @@ def _copy_files(files: Iterable[Union[PythonResource, FileOnDisk]], destination:
 
 def copy_static_files(
 		static_dir: PathLike,
-		js_files: Iterable[Union[PythonResource, FileOnDisk]],
-		css_files: Iterable[Union[PythonResource, FileOnDisk]],
-		img_files: Iterable[Union[PythonResource, FileOnDisk]],
+		js_files: Iterable[Union[PythonResource, FileOnDisk]] = (),
+		css_files: Iterable[Union[PythonResource, FileOnDisk]] = (),
+		img_files: Iterable[Union[PythonResource, FileOnDisk]] = (),
 		) -> None:
 	"""
 	Copy CSS, JS and image files into the given directory.
