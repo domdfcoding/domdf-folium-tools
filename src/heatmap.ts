@@ -149,4 +149,142 @@ export const TimeDimensionControl = L.Control.TimeDimension.extend({
 	_getDisplayDateFormat: function(date: Date) {
 		return this.index[date.getTime() - 1];
 	},
+
+	onAdd: function(map) {
+		var container;
+		this._map = map;
+		if (!this._timeDimension && map.timeDimension) {
+			this._timeDimension = map.timeDimension;
+		}
+		this._initPlayer();
+
+		container = L.DomUtil.create('div', 'leaflet-bar leaflet-bar-horizontal leaflet-bar-timecontrol');
+		if (this.options.backwardButton) {
+			this._buttonBackward = this._createButton('Backward', container);
+		}
+		if (this.options.playReverseButton) {
+			this._buttonPlayReversePause = this._createButton('Play Reverse', container);
+		}
+		if (this.options.playButton) {
+			this._buttonPlayPause = this._createButton('Play', container);
+		}
+		if (this.options.forwardButton) {
+			this._buttonForward = this._createButton('Forward', container);
+		}
+		if (this.options.loopButton) {
+			this._buttonLoop = this._createButton('Loop', container);
+		}
+		if (this.options.displayDate) {
+			this._displayDate = this._createButton('Date', container);
+		}
+		if (this.options.timeSlider) {
+			this._sliderTime = this._createSliderTime(
+				this.options.styleNS + ' timecontrol-slider timecontrol-dateslider',
+				container,
+			);
+		}
+		if (this.options.speedSlider) {
+			this._sliderSpeed = this._createSliderSpeed(this.options.styleNS + ' timecontrol-slider timecontrol-speed',
+				container);
+		}
+
+		this._steps = this.options.timeSteps || 1;
+
+		this._timeDimension.on('timeload', this._update, this);
+		this._timeDimension.on('timeload', this._onPlayerStateChange, this);
+		this._timeDimension.on('timeloading', this._onTimeLoading, this);
+
+		this._timeDimension.on('limitschanged availabletimeschanged', this._onTimeLimitsChanged, this);
+
+		L.DomEvent.disableClickPropagation(container);
+
+		return container;
+	},
+
+	_createSliderSpeed: function(className, container) {
+		var sliderContainer = L.DomUtil.create('div', className, container);
+		/* L.DomEvent
+            .addListener(sliderContainer, 'click', L.DomEvent.stopPropagation)
+            .addListener(sliderContainer, 'click', L.DomEvent.preventDefault);
+		*/
+		var speedLabel = L.DomUtil.create('span', 'speed', sliderContainer);
+		var sliderbar = L.DomUtil.create('div', 'slider', sliderContainer);
+		var initialSpeed = Math.round(10000 / (this._player.getTransitionTime() || 1000)) / 10;
+		speedLabel.innerHTML = this._getDisplaySpeed(initialSpeed);
+
+		var knob = new L.UI.Knob(sliderbar, {
+			step: this.options.speedStep,
+			rangeMin: this.options.minSpeed,
+			rangeMax: this.options.maxSpeed,
+		});
+
+		knob.on('dragend', function(e) {
+			var value = e.target.getValue();
+			this._draggingSpeed = false;
+			speedLabel.innerHTML = this._getDisplaySpeed(value);
+			this._sliderSpeedValueChanged(value);
+		}, this);
+		knob.on('drag', function(e) {
+			this._draggingSpeed = true;
+			speedLabel.innerHTML = this._getDisplaySpeed(e.target.getValue());
+		}, this);
+		knob.on('positionchanged', function(e) {
+			speedLabel.innerHTML = this._getDisplaySpeed(e.target.getValue());
+		}, this);
+
+		L.DomEvent.on(sliderbar, 'click', function(e) {
+			if (e.target === knob._element) {
+				return; // prevent value changes on drag release
+			}
+			var first = e.touches && e.touches.length === 1 ? e.touches[0] : e,
+				x = L.DomEvent.getMousePosition(first, sliderbar).x;
+			knob.setPosition(x);
+			speedLabel.innerHTML = this._getDisplaySpeed(knob.getValue());
+			this._sliderSpeedValueChanged(knob.getValue());
+		}, this);
+		return knob;
+	},
+
+	_onPlayerStateChange: function() {
+		if (this._buttonPlayPause) {
+			if (this._player.isPlaying() && this._player.getSteps() > 0) {
+				L.DomUtil.addClass(this._buttonPlayPause, 'pause');
+				L.DomUtil.removeClass(this._buttonPlayPause, 'play');
+			} else {
+				L.DomUtil.removeClass(this._buttonPlayPause, 'pause');
+				L.DomUtil.addClass(this._buttonPlayPause, 'play');
+			}
+			if (this._player.isWaiting() && this._player.getSteps() > 0) {
+				L.DomUtil.addClass(this._buttonPlayPause, 'loading');
+			} else {
+				this._buttonPlayPause.innerHTML = '';
+				L.DomUtil.removeClass(this._buttonPlayPause, 'loading');
+			}
+		}
+		if (this._buttonPlayReversePause) {
+			if (this._player.isPlaying() && this._player.getSteps() < 0) {
+				L.DomUtil.addClass(this._buttonPlayReversePause, 'pause');
+			} else {
+				L.DomUtil.removeClass(this._buttonPlayReversePause, 'pause');
+			}
+			if (this._player.isWaiting() && this._player.getSteps() < 0) {
+				L.DomUtil.addClass(this._buttonPlayReversePause, 'loading');
+			} else {
+				this._buttonPlayReversePause.innerHTML = '';
+				L.DomUtil.removeClass(this._buttonPlayReversePause, 'loading');
+			}
+		}
+		if (this._buttonLoop) {
+			if (this._player.isLooped()) {
+				L.DomUtil.addClass(this._buttonLoop, 'looped');
+			} else {
+				L.DomUtil.removeClass(this._buttonLoop, 'looped');
+			}
+		}
+		if (this._sliderSpeed && !this._draggingSpeed) {
+			var speed = this._player.getTransitionTime() || 1000; // transitionTime
+			speed = Math.round(10000 / speed) / 10; // 1s / transition
+			this._sliderSpeed.setValue(speed);
+		}
+	},
 });
