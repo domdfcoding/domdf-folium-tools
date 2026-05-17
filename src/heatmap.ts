@@ -150,15 +150,17 @@ export const TimeDimensionControl = L.Control.TimeDimension.extend({
 		return this.index[date.getTime() - 1];
 	},
 
-	onAdd: function(map) {
-		var container;
+	onAdd: function(map: L.Map) {
 		this._map = map;
+
+		// @ts-expect-error  // Doesn't know map.timeDimension exists.
 		if (!this._timeDimension && map.timeDimension) {
+			// @ts-expect-error  // Doesn't know map.timeDimension exists.
 			this._timeDimension = map.timeDimension;
 		}
 		this._initPlayer();
 
-		container = L.DomUtil.create('div', 'leaflet-bar leaflet-bar-horizontal leaflet-bar-timecontrol');
+		const container = L.DomUtil.create('div', 'leaflet-bar leaflet-bar-horizontal leaflet-bar-timecontrol');
 		if (this.options.backwardButton) {
 			this._buttonBackward = this._createButton('Backward', container);
 		}
@@ -201,45 +203,55 @@ export const TimeDimensionControl = L.Control.TimeDimension.extend({
 		return container;
 	},
 
-	_createSliderSpeed: function(className, container) {
-		var sliderContainer = L.DomUtil.create('div', className, container);
+	_createSliderSpeed: function(className: string, container: HTMLElement) {
+		const sliderContainer = L.DomUtil.create('div', className, container);
 		/* L.DomEvent
             .addListener(sliderContainer, 'click', L.DomEvent.stopPropagation)
             .addListener(sliderContainer, 'click', L.DomEvent.preventDefault);
 		*/
-		var speedLabel = L.DomUtil.create('span', 'speed', sliderContainer);
-		var sliderbar = L.DomUtil.create('div', 'slider', sliderContainer);
-		var initialSpeed = Math.round(10000 / (this._player.getTransitionTime() || 1000)) / 10;
+		const speedLabel = L.DomUtil.create('span', 'speed', sliderContainer);
+		const sliderbar = L.DomUtil.create('div', 'slider', sliderContainer);
+		const initialSpeed = Math.round(10000 / (this._player.getTransitionTime() || 1000)) / 10;
 		speedLabel.innerHTML = this._getDisplaySpeed(initialSpeed);
 
-		var knob = new L.UI.Knob(sliderbar, {
+		// @ts-expect-error  // Doesn't know L.UI namespace exists
+		const knob = new L.UI.Knob(sliderbar, {
 			step: this.options.speedStep,
 			rangeMin: this.options.minSpeed,
 			rangeMax: this.options.maxSpeed,
 		});
 
-		knob.on('dragend', function(e) {
-			var value = e.target.getValue();
+		knob.on('dragend', function(e: L.DragEndEvent) {
+			const value = e.target.getValue();
+			// @ts-expect-error  // False positive `this` scope
 			this._draggingSpeed = false;
+			// @ts-expect-error  // False positive `this` scope
 			speedLabel.innerHTML = this._getDisplaySpeed(value);
+			// @ts-expect-error  // False positive `this` scope
 			this._sliderSpeedValueChanged(value);
 		}, this);
-		knob.on('drag', function(e) {
+		knob.on('drag', function(e: Event) {
+			// @ts-expect-error  // False positive `this` scope
 			this._draggingSpeed = true;
+			// @ts-expect-error  // False positive `this` scope
 			speedLabel.innerHTML = this._getDisplaySpeed(e.target.getValue());
 		}, this);
-		knob.on('positionchanged', function(e) {
+		knob.on('positionchanged', function(e: Event) {
+			// @ts-expect-error  // False positive `this` scope
 			speedLabel.innerHTML = this._getDisplaySpeed(e.target.getValue());
 		}, this);
 
-		L.DomEvent.on(sliderbar, 'click', function(e) {
+		L.DomEvent.on(sliderbar, 'click', function(e: Event) {
 			if (e.target === knob._element) {
 				return; // prevent value changes on drag release
 			}
-			var first = e.touches && e.touches.length === 1 ? e.touches[0] : e,
-				x = L.DomEvent.getMousePosition(first, sliderbar).x;
+			// @ts-expect-error  // Doesn't know touches property exists
+			const first = e.touches && e.touches.length === 1 ? e.touches[0] : e;
+			const x = L.DomEvent.getMousePosition(first, sliderbar).x;
 			knob.setPosition(x);
+			// @ts-expect-error  // False positive `this` scope
 			speedLabel.innerHTML = this._getDisplaySpeed(knob.getValue());
+			// @ts-expect-error  // False positive `this` scope
 			this._sliderSpeedValueChanged(knob.getValue());
 		}, this);
 		return knob;
@@ -282,7 +294,7 @@ export const TimeDimensionControl = L.Control.TimeDimension.extend({
 			}
 		}
 		if (this._sliderSpeed && !this._draggingSpeed) {
-			var speed = this._player.getTransitionTime() || 1000; // transitionTime
+			let speed = this._player.getTransitionTime() || 1000; // transitionTime
 			speed = Math.round(10000 / speed) / 10; // 1s / transition
 			this._sliderSpeed.setValue(speed);
 		}
