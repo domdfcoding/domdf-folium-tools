@@ -203,59 +203,6 @@ export const TimeDimensionControl = L.Control.TimeDimension.extend({
 		return container;
 	},
 
-	_createSliderSpeed: function(className: string, container: HTMLElement) {
-		const sliderContainer = L.DomUtil.create('div', className, container);
-		/* L.DomEvent
-            .addListener(sliderContainer, 'click', L.DomEvent.stopPropagation)
-            .addListener(sliderContainer, 'click', L.DomEvent.preventDefault);
-		*/
-		const speedLabel = L.DomUtil.create('span', 'speed', sliderContainer);
-		const sliderbar = L.DomUtil.create('div', 'slider', sliderContainer);
-		const initialSpeed = Math.round(10000 / (this._player.getTransitionTime() || 1000)) / 10;
-		speedLabel.innerHTML = this._getDisplaySpeed(initialSpeed);
-
-		// @ts-expect-error  // Doesn't know L.UI namespace exists
-		const knob = new L.UI.Knob(sliderbar, {
-			step: this.options.speedStep,
-			rangeMin: this.options.minSpeed,
-			rangeMax: this.options.maxSpeed,
-		});
-
-		knob.on('dragend', function(e: L.DragEndEvent) {
-			const value = e.target.getValue();
-			// @ts-expect-error  // False positive `this` scope
-			this._draggingSpeed = false;
-			// @ts-expect-error  // False positive `this` scope
-			speedLabel.innerHTML = this._getDisplaySpeed(value);
-			// @ts-expect-error  // False positive `this` scope
-			this._sliderSpeedValueChanged(value);
-		}, this);
-		knob.on('drag', function(e: Event) {
-			// @ts-expect-error  // False positive `this` scope
-			this._draggingSpeed = true;
-			// @ts-expect-error  // False positive `this` scope
-			speedLabel.innerHTML = this._getDisplaySpeed(e.target.getValue());
-		}, this);
-		knob.on('positionchanged', function(e: Event) {
-			// @ts-expect-error  // False positive `this` scope
-			speedLabel.innerHTML = this._getDisplaySpeed(e.target.getValue());
-		}, this);
-
-		L.DomEvent.on(sliderbar, 'click', function(e: Event) {
-			if (e.target === knob._element) {
-				return; // prevent value changes on drag release
-			}
-			// @ts-expect-error  // Doesn't know touches property exists
-			const first = e.touches && e.touches.length === 1 ? e.touches[0] : e;
-			const x = L.DomEvent.getMousePosition(first, sliderbar).x;
-			knob.setPosition(x);
-			// @ts-expect-error  // False positive `this` scope
-			speedLabel.innerHTML = this._getDisplaySpeed(knob.getValue());
-			// @ts-expect-error  // False positive `this` scope
-			this._sliderSpeedValueChanged(knob.getValue());
-		}, this);
-		return knob;
-	},
 
 	_onPlayerStateChange: function() {
 		if (this._buttonPlayPause) {
