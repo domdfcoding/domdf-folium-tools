@@ -65,6 +65,22 @@ class TimeDimensionControl(Control):
 
 	_template = Template(
 			"""
+		{% macro header(this, kwargs) %}
+		<style>
+			.leaflet-bar-timecontrol .leaflet-control-timecontrol::before {
+				font-family: unset;
+			}
+
+			.timecontrol-speed::before {
+				font-family: "Font Awesome 6 Free" !important;
+				content: var(--fa);
+			}
+
+			.fa-flipx::before {
+				transform: rotate(180deg);
+			}
+		</style>
+		{% endmacro %}
 		{% macro script(this, kwargs) %}
 
 			var times = {{this.times}};
@@ -100,6 +116,10 @@ class TimeDimensionControl(Control):
 			(
 					"leaflet.timedimension.control.min.css",
 					"https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.control.css",
+					),
+			(
+					"fontawesome_css",
+					"https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css",
 					),
 			]
 
