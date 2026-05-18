@@ -454,7 +454,7 @@ class TimeDimensionState(MacroElement):
 	_template = Template(
 			"""
 		{% macro script(this, kwargs) %}
-			const timeDimensionState = new TimeDimensionState({{this._parent.get_name()}}, {{this.time_dimension_control.get_name()}}.index, {{this.param_name|tojson}})
+			const timeDimensionState = new L.TimeDimensionState({{this._parent.get_name()}}, {{this.time_dimension_control.get_name()}}.index, {{this.param_name|tojson}})
 			timeDimensionState.fromURL({{this.default_time}})
 			timeDimensionState.setup();
 		{% endmacro %}
