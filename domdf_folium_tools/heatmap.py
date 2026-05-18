@@ -218,6 +218,18 @@ def validate_input_data(data: _D, index: Optional[list] = None) -> tuple[_D, lis
 	return data, index
 
 
+_heatmap_template = Template(
+		"""
+		{% macro script(this, kwargs) %}
+			var {{ this.get_name() }} = {{ this.layer_class_name }}(
+				{{ this.data_variable }},
+				{heatmapOptions: {{ this.options|tojson(indent=20) }}},
+			);
+		{% endmacro %}
+		""".replace('\t', "    "),
+		)
+
+
 class HeatMapWithTime(JSCSSMixin, Layer):
 	"""
 	Create a ``HeatMapWithTime`` layer.
@@ -250,17 +262,7 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 	"""
 
 	layer_class_name = "new L.TDHeatmap"
-
-	_template = Template(
-			"""
-		{% macro script(this, kwargs) %}
-			var {{ this.get_name() }} = {{ this.layer_class_name }}(
-				{{ this.data_variable }},
-				{heatmapOptions: {{ this.options|tojson(indent=20) }}},
-			);
-		{% endmacro %}
-		""".replace('\t', "    "),
-			)
+	_template = _heatmap_template
 
 	default_js = [
 			(
@@ -370,6 +372,7 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 	"""
 
 	layer_class_name = "new L.TDHeatLayer"
+	_template = _heatmap_template
 
 	def __init__(
 			self,
