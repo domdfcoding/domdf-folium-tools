@@ -29,7 +29,11 @@ python-implementations = [ "CPython",]
 platforms = [ "Windows", "macOS", "Linux",]
 license-key = "MIT"
 package = "domdf_folium_tools"
-additional-files = [ "include domdf_folium_tools/*.js", "include domdf_folium_tools/*.js.map",]
+additional-files = [
+    "recursive-include domdf_folium_tools *.js",
+    "recursive-include domdf_folium_tools *.css",
+    "recursive-include domdf_folium_tools *.js.map",
+]
 
 [tool.importcheck]
 

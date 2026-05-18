@@ -1,0 +1,84 @@
+/*
+* Copyright © 2026 Dominic Davis-Foster <dominic@davis-foster.co.uk>
+*
+* Adapted from https://github.com/smeijer/leaflet-geosearch
+* Copyright (c) 2010-2016 Stephan Meijer
+*
+* MIT Licence
+*/
+
+/* TODO: ease transition between the leaflet control border "shadow" and the shadow on our popup */
+
+/* global styling */
+.leaflet-control-map-swap * {
+	box-sizing: border-box;
+}
+
+.leaflet-control-map-swap a.leaflet-bar-part {
+	border-radius: 2px;
+}
+
+/* Links styling */
+.leaflet-control-map-swap .map-swap-links {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 30px;
+	border-radius: 0 4px 4px 4px;
+	background-color: #fff;
+	background-clip: padding-box;
+	z-index: -1;
+	height: auto;
+	margin: 0;
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+	max-width: 350px;
+	width: fit-content;
+
+	a {
+		/* background-color: #fff; */
+		width: fit-content;
+		min-width: 100%;
+		outline: none;
+		border: none;
+		margin: 0;
+		padding: 0 8px;
+		font-size: 12px;
+		height: 30px;
+		border-radius: 4px;
+		min-width: 100%;
+		white-space: nowrap;
+	}
+
+}
+
+.leaflet-control-map-swap.active {
+	border-radius: 4px 0 0 4px;
+
+	a.leaflet-bar-part {
+		border-radius: 2px 0 0 2px !important;
+	}
+}
+
+.leaflet-control-map-swap.active .map-swap-links {
+	display: block;
+}
+
+.leaflet-right {
+
+	.leaflet-control-map-swap.active {
+		border-radius: 0 4px 4px 0;
+
+		a {
+			border-radius: 0 2px 2px 0 !important;
+		}
+	}
+
+
+	.leaflet-control-map-swap .map-swap-links {
+		right: 28px;
+		left: initial;
+		border-radius: 4px 0 4px 4px;
+		border-left: inherit;
+		border-right: none;
+	}
+}

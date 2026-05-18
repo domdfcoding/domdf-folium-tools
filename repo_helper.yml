@@ -25,8 +25,9 @@ additional_ignore:
  - node_modules
 
 manifest_additional:
-  - include domdf_folium_tools/*.js
-  - include domdf_folium_tools/*.js.map
+  - recursive-include domdf_folium_tools *.js
+  - recursive-include domdf_folium_tools *.css
+  - recursive-include domdf_folium_tools *.js.map
 
 exclude_files:
   - justfile
