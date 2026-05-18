@@ -65,6 +65,22 @@ class TimeDimensionControl(Control):
 
 	_template = Template(
 			"""
+		{% macro header(this, kwargs) %}
+		<style>
+			.leaflet-bar-timecontrol .leaflet-control-timecontrol::before {
+				font-family: unset;
+			}
+
+			.timecontrol-speed::before {
+				font-family: "Font Awesome 6 Free" !important;
+				content: var(--fa);
+			}
+
+			.fa-flipx::before {
+				transform: rotate(180deg);
+			}
+		</style>
+		{% endmacro %}
 		{% macro script(this, kwargs) %}
 
 			var times = {{this.times}};

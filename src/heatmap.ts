@@ -161,20 +161,36 @@ export const TimeDimensionControl = L.Control.TimeDimension.extend({
 		this._initPlayer();
 
 		const container = L.DomUtil.create('div', 'leaflet-bar leaflet-bar-horizontal leaflet-bar-timecontrol');
+		if (this.options.toStartButton) {
+			this._buttomStart = this._createButton('ToStart', container);
+			this._buttomStart.title = 'To Start';
+			this._buttomStart.classList.add('fa-solid', 'fa-backward-fast');
+		}
 		if (this.options.backwardButton) {
 			this._buttonBackward = this._createButton('Backward', container);
+			this._buttonBackward.classList.add('fa-solid', 'fa-backward-step');
 		}
 		if (this.options.playReverseButton) {
 			this._buttonPlayReversePause = this._createButton('Play Reverse', container);
+			this._buttonPlayReversePause.classList.remove('reverse');
+			this._buttonPlayReversePause.classList.add('fa-solid', 'fa-play', 'fa-flipx');
 		}
 		if (this.options.playButton) {
 			this._buttonPlayPause = this._createButton('Play', container);
+			this._buttonPlayPause.classList.add('fa-solid', 'fa-play');
 		}
 		if (this.options.forwardButton) {
 			this._buttonForward = this._createButton('Forward', container);
+			this._buttonForward.classList.add('fa-solid', 'fa-forward-step');
+		}
+		if (this.options.toEndButton) {
+			this._buttomEnd = this._createButton('ToEnd', container);
+			this._buttomEnd.title = 'To End';
+			this._buttomEnd.classList.add('fa-solid', 'fa-forward-fast');
 		}
 		if (this.options.loopButton) {
 			this._buttonLoop = this._createButton('Loop', container);
+			this._buttonLoop.classList.add('fa-solid', 'fa-retweet');
 		}
 		if (this.options.displayDate) {
 			this._displayDate = this._createButton('Date', container);
@@ -186,8 +202,11 @@ export const TimeDimensionControl = L.Control.TimeDimension.extend({
 			);
 		}
 		if (this.options.speedSlider) {
-			this._sliderSpeed = this._createSliderSpeed(this.options.styleNS + ' timecontrol-slider timecontrol-speed',
-				container);
+			this._sliderSpeed = this._createSliderSpeed(
+				this.options.styleNS + ' timecontrol-slider timecontrol-speed',
+				container,
+			);
+			this._sliderSpeed._container.parentElement.classList.add('fa-clock');
 		}
 
 		this._steps = this.options.timeSteps || 1;
@@ -203,47 +222,36 @@ export const TimeDimensionControl = L.Control.TimeDimension.extend({
 		return container;
 	},
 
-
 	_onPlayerStateChange: function() {
+		// @ts-expect-error  // No types for TimeDimension
+		L.Control.TimeDimension.prototype._onPlayerStateChange.call(this);
 		if (this._buttonPlayPause) {
 			if (this._player.isPlaying() && this._player.getSteps() > 0) {
-				L.DomUtil.addClass(this._buttonPlayPause, 'pause');
-				L.DomUtil.removeClass(this._buttonPlayPause, 'play');
-			} else {
 				L.DomUtil.removeClass(this._buttonPlayPause, 'pause');
-				L.DomUtil.addClass(this._buttonPlayPause, 'play');
-			}
-			if (this._player.isWaiting() && this._player.getSteps() > 0) {
-				L.DomUtil.addClass(this._buttonPlayPause, 'loading');
+				L.DomUtil.addClass(this._buttonPlayPause, 'fa-pause');
+				L.DomUtil.removeClass(this._buttonPlayPause, 'fa-play');
 			} else {
-				this._buttonPlayPause.innerHTML = '';
-				L.DomUtil.removeClass(this._buttonPlayPause, 'loading');
+				L.DomUtil.removeClass(this._buttonPlayPause, 'play');
+				L.DomUtil.removeClass(this._buttonPlayPause, 'fa-pause');
+				L.DomUtil.addClass(this._buttonPlayPause, 'fa-play');
 			}
 		}
 		if (this._buttonPlayReversePause) {
+			L.DomUtil.removeClass(this._buttonPlayReversePause, 'pause');
 			if (this._player.isPlaying() && this._player.getSteps() < 0) {
-				L.DomUtil.addClass(this._buttonPlayReversePause, 'pause');
+				L.DomUtil.addClass(this._buttonPlayReversePause, 'fa-pause');
 			} else {
-				L.DomUtil.removeClass(this._buttonPlayReversePause, 'pause');
-			}
-			if (this._player.isWaiting() && this._player.getSteps() < 0) {
-				L.DomUtil.addClass(this._buttonPlayReversePause, 'loading');
-			} else {
-				this._buttonPlayReversePause.innerHTML = '';
-				L.DomUtil.removeClass(this._buttonPlayReversePause, 'loading');
+				L.DomUtil.removeClass(this._buttonPlayReversePause, 'fa-pause');
 			}
 		}
-		if (this._buttonLoop) {
-			if (this._player.isLooped()) {
-				L.DomUtil.addClass(this._buttonLoop, 'looped');
-			} else {
-				L.DomUtil.removeClass(this._buttonLoop, 'looped');
-			}
-		}
-		if (this._sliderSpeed && !this._draggingSpeed) {
-			let speed = this._player.getTransitionTime() || 1000; // transitionTime
-			speed = Math.round(10000 / speed) / 10; // 1s / transition
-			this._sliderSpeed.setValue(speed);
-		}
+	},
+
+	_buttonToStartClicked: function() {
+		this._timeDimension.setCurrentTimeIndex(0);
+	},
+
+	_buttonToEndClicked: function() {
+		console.log(this._timeDimension.options.times);
+		this._timeDimension.setCurrentTimeIndex(this._timeDimension.options.times.length);
 	},
 });
