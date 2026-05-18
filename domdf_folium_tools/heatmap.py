@@ -31,7 +31,7 @@ Cumulative heatmaps – data from all previous time windows is included in the "
 
 # stdlib
 import json
-from typing import Optional, TypeVar, Union, cast
+from typing import Optional, TypeVar, Union
 
 # 3rd party
 from folium import Control
@@ -61,7 +61,21 @@ class TimeDimensionControl(Control):
 	:param max_speed: Maximum fps speed for animation.
 	:param speed_step: Step between different fps speeds on the speed slider.
 	:param position: Position string for the time slider. Format: 'bottom/top'+'left/right'.
+	:param to_start_button: Whether to show the go to start button.
+	:param to_end_button: Whether to show the go to end button.
+	:param backward_button: Whether to show the button to go to the previous time step.
+	:param forward_button: Whether to show the button to go to the next time step.
+	:param play_button: Whether to show the play button.
+	:param play_reverse_button: Whether to show the play backwards button.
+	:param loop_button: Whether to show the button to loop the playback.
+	:param time_slider: Whether to show the time slider.
+	:param time_slider_drag_update:
+	:param limit_sliders:
+	:param limit_minimum_range:
+	:param speed_slider: Whether to show the playback speed slider.
 	"""
+
+	control_class_name = "L.Control.TimeDimensionHeatmap"
 
 	_template = Template(
 			"""
@@ -85,12 +99,12 @@ class TimeDimensionControl(Control):
 
 			var times = {{this.times}};
 
-			{{this._parent.get_name()}}.timeDimension = L.timeDimension(
+			{{ this._parent.get_name() }}.timeDimension = L.timeDimension(
 				{times : times, currentTime: new Date(1)}
 			);
 
-			var {{ this.get_name() }} = new L.Control.TimeDimensionHeatmap(
-				{{this.index | tojson}},
+			var {{ this.get_name() }} = new {{ this.control_class_name }}(
+				{{ this.index | tojson }},
 				{{ this.options | tojson(indent=20) }},
 			).addTo({{this._parent.get_name()}});
 
@@ -133,34 +147,48 @@ class TimeDimensionControl(Control):
 			max_speed: float = 10,
 			speed_step: float = 0.1,
 			position: Optional[TypePosition] = "bottomleft",
+			to_start_button: bool = False,
+			to_end_button: bool = False,
+			backward_button: bool = True,
+			forward_button: bool = True,
+			play_button: bool = True,
+			play_reverse_button: bool = False,
+			loop_button: bool = False,
+			time_slider: bool = True,
+			time_slider_drag_update: bool = False,
+			limit_sliders: bool = False,
+			limit_minimum_range: int = 5,
+			speed_slider: bool = True,
 			):
-		super().__init__(control="L.Control.TimeDimensionHeatmap", position=position)
+		super().__init__(control=self.control_class_name, position=position)
 		self._name = "TimeDimensionControl"
 
 		self.index = index
 		self.times = list(range(1, len(index) + 1))
 
-		# TODO: use `parse_options`
-		self.options = {
-				"autoPlay": auto_play,
-				"displayDate": display_index,
-				"minSpeed": min_speed,
-				"maxSpeed": max_speed,
-				"position": cast(str, position),
-				"speedStep": speed_step,
-				"timeSteps": index_steps,
-				"backwardButton": True,
-				"forwardButton": True,
-				"limitSliders": True,
-				"limitMinimumRange": 5,
-				"loopButton": True,
-				"speedSlider": True,
-				"timeSlider": True,
-				"playButton": True,
-				"playReverseButton": True,
-				"timeSliderDragUpdate": False,
-				"styleNS": "leaflet-control-timecontrol",
-				}
+		self.options = parse_options(
+				auto_play=auto_play,
+				display_date=display_index,
+				min_speed=min_speed,
+				max_speed=max_speed,
+				position=position,
+				speed_step=speed_step,
+				time_steps=index_steps,
+				to_start_button=to_start_button,
+				to_end_button=to_end_button,
+				backward_button=backward_button,
+				forward_button=forward_button,
+				limit_sliders=limit_sliders,
+				limit_minimum_range=limit_minimum_range,
+				loop_button=loop_button,
+				speed_slider=speed_slider,
+				time_slider=time_slider,
+				play_button=play_button,
+				play_reverse_button=play_reverse_button,
+				time_slider_drag_update=time_slider_drag_update,
+				)
+
+		self.options["styleNS"] = "leaflet-control-timecontrol"
 
 
 HeatmapDataWeighted = list[list[Union[tuple[float, float, float], tuple[float, float]]]]
