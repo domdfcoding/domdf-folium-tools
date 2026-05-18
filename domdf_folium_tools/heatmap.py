@@ -75,7 +75,7 @@ class TimeDimensionControl(Control):
 	:param speed_slider: Whether to show the playback speed slider.
 	"""
 
-	control_class_name = "L.Control.TimeDimensionHeatmap"
+	control_class_name = "new L.Control.TimeDimensionHeatmap"
 
 	_template = Template(
 			"""
@@ -103,7 +103,7 @@ class TimeDimensionControl(Control):
 				{times : times, currentTime: new Date(1)}
 			);
 
-			var {{ this.get_name() }} = new {{ this.control_class_name }}(
+			var {{ this.get_name() }} = {{ this.control_class_name }}(
 				{{ this.index | tojson }},
 				{{ this.options | tojson(indent=20) }},
 			).addTo({{this._parent.get_name()}});
