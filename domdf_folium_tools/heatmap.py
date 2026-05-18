@@ -117,6 +117,10 @@ class TimeDimensionControl(Control):
 					"leaflet.timedimension.control.min.css",
 					"https://cdn.jsdelivr.net/npm/leaflet-timedimension@1.1.1/dist/leaflet.timedimension.control.css",
 					),
+			(
+					"fontawesome_css",
+					"https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css",
+					),
 			]
 
 	def __init__(
