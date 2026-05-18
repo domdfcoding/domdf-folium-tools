@@ -200,10 +200,37 @@
       this._timeDimension.setCurrentTimeIndex(this._timeDimension.options.times.length);
     }
   });
+  function updateQueryStringParam(key, value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set(key, value.toString());
+    window.history.replaceState({}, "", url);
+  }
+  var TimeDimensionState = class {
+    constructor(map, index, paramName = "time") {
+      this.map = map;
+      this.index = index;
+      this.paramName = paramName;
+    }
+    onTimeChanged(e) {
+      updateQueryStringParam(this.paramName, this.index[e.time - 1]);
+    }
+    setup() {
+      this.map.timeDimension.on("timeload", this.onTimeChanged, this);
+    }
+    fromURL(defaultTime) {
+      const url = new URL(window.location.href);
+      const theTime = url.searchParams.get(this.paramName) ?? defaultTime;
+      console.log("Time from URL:", theTime);
+      const timeIndex = this.index.indexOf(theTime);
+      console.log("Time from URL:", timeIndex);
+      this.map.timeDimension.setCurrentTimeIndex(timeIndex);
+    }
+  };
 
   // src/_heatmap_main.ts
   L.TDHeatmap = TDHeatmap;
   L.TDHeatLayer = TDHeatLayer;
   L.Control.TimeDimensionHeatmap = TimeDimensionControl;
+  L.TimeDimensionState = TimeDimensionState;
 })();
 //# sourceMappingURL=heatmap.js.map

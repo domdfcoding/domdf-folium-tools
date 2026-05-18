@@ -31,10 +31,10 @@ Cumulative heatmaps – data from all previous time windows is included in the "
 
 # stdlib
 import json
-from typing import Optional, TypeVar, Union
+from typing import Any, Optional, TypeVar, Union
 
 # 3rd party
-from folium import Control
+from folium import Control, MacroElement
 from folium.elements import JSCSSMixin
 from folium.map import Layer
 from folium.template import Template
@@ -43,7 +43,13 @@ from folium.utilities import TypePosition, parse_options
 # this package
 from domdf_folium_tools import __version__
 
-__all__ = ["HeatLayerWithTime", "HeatMapWithTime", "TimeDimensionControl", "validate_input_data"]
+__all__ = [
+		"HeatLayerWithTime",
+		"HeatMapWithTime",
+		"TimeDimensionControl",
+		"TimeDimensionState",
+		"validate_input_data"
+		]
 
 # TODO: tojson filter that doesn't quote dict keys
 # TODO: validate that TimeDimensionControl has been added when rendering
@@ -425,3 +431,48 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/heatmap.min.js",
 					),
 			]
+
+
+class TimeDimensionState(MacroElement):
+	"""
+	Inject JavaScript to track and set overlay layers from URL parameter.
+
+	Add to map after adding the time dimension control.
+
+	:param time_dimension_control: The time dimension control element.
+	:param default_time: The defualt start time if not specified in the URL.
+	:param param_name: The URL query parameter to use.
+	"""
+
+	default_js = [
+			(
+					"domdf_folium_tools_heatmap_js",
+					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/heatmap.min.js",
+					),
+			]
+
+	_template = Template(
+			"""
+		{% macro script(this, kwargs) %}
+			const timeDimensionState = new TimeDimensionState({{this._parent.get_name()}}, {{this.time_dimension_control.get_name()}}.index, {{this.param_name|tojson}})
+			timeDimensionState.fromURL({{this.default_time}})
+			timeDimensionState.setup();
+		{% endmacro %}
+		""".replace('\t', "    "),
+			)
+
+	def __init__(
+			self,
+			time_dimension_control: TimeDimensionControl,
+			default_time: Optional[Any] = None,
+			param_name: str = "time",
+			):
+		super().__init__()
+		self._name = "TimeDimensionState"
+		self.time_dimension_control = time_dimension_control
+		self.param_name = param_name
+
+		if default_time is None:
+			self.default_time = time_dimension_control.index[0]
+		else:
+			self.default_time = default_time

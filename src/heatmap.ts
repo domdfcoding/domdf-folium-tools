@@ -259,3 +259,45 @@ export const TimeDimensionControl = L.Control.TimeDimension.extend({
 		this._timeDimension.setCurrentTimeIndex(this._timeDimension.options.times.length);
 	},
 });
+
+function updateQueryStringParam(key: string, value: number | string): void {
+	const url = new URL(window.location.href);
+	url.searchParams.set(key, value.toString()); // Add or update the parameter
+	// window.history.pushState({}, null, url);
+	window.history.replaceState({}, '', url);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export class TimeDimensionState {
+	map: L.Map;
+	index: any[];
+	paramName: string;
+
+	constructor(map: L.Map, index: any[], paramName: string = 'time') {
+		this.map = map;
+		this.index = index;
+		this.paramName = paramName;
+	}
+
+	onTimeChanged(e: Event): void {
+		// eslint-disable-next-line no-undef
+		// @ts-expect-error  // Need proper type for e
+		updateQueryStringParam(this.paramName, this.index[e.time - 1]);
+	}
+
+	setup(): void {
+		// @ts-expect-error  // Doesn't know map.timeDimension exists.
+		this.map.timeDimension.on('timeload', this.onTimeChanged, this);
+	}
+
+	fromURL(defaultTime: any): void {
+		const url = new URL(window.location.href);
+		const theTime = url.searchParams.get(this.paramName) ?? defaultTime;
+		console.log('Time from URL:', theTime);
+		const timeIndex = this.index.indexOf(theTime);
+
+		console.log('Time from URL:', timeIndex);
+		// @ts-expect-error  // Doesn't know map.timeDimension exists.
+		this.map.timeDimension.setCurrentTimeIndex(timeIndex);
+	}
+}
