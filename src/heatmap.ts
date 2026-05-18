@@ -1,5 +1,9 @@
 /* Based on https://github.com/python-visualization/folium/blob/main/folium/plugins/heat_map_withtime.py
 *  Copyright (C) 2013-, Folium developers
+*
+*  Based on https://github.com/socib/Leaflet.TimeDimension/master/src/leaflet.timedimension.control.js
+*  Copyright (c) 2014 ICTS SOCIB - Servei d'observació i predicció costaner de les Illes Balears.
+*
 *  MIT Licenced
 */
 
