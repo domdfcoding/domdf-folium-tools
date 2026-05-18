@@ -249,10 +249,12 @@ class HeatMapWithTime(JSCSSMixin, Layer):
 		on the data and index values to avoid common pitfalls. ``data_variable`` and ``index`` must also be provided and cannot be :py:obj:`None`.
 	"""
 
+	layer_class_name = "new L.TDHeatmap"
+
 	_template = Template(
 			"""
 		{% macro script(this, kwargs) %}
-			var {{this.get_name()}} = new L.TDHeatmap(
+			var {{ this.get_name() }} = {{ this.layer_class_name }}(
 				{{ this.data_variable }},
 				{heatmapOptions: {{ this.options|tojson(indent=20) }}},
 			);
@@ -367,6 +369,8 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 		on the data and index values to avoid common pitfalls. ``data_variable`` and ``index`` must also be provided and cannot be :py:obj:`None`.
 	"""
 
+	layer_class_name = "new L.TDHeatLayer"
+
 	def __init__(
 			self,
 			data: Optional[HeatLayerData],
@@ -418,14 +422,3 @@ class HeatLayerWithTime(JSCSSMixin, Layer):
 					f"https://cdn.jsdelivr.net/gh/domdfcoding/domdf-folium-tools@v{__version__}/domdf_folium_tools/heatmap.min.js",
 					),
 			]
-
-	_template = Template(
-			"""
-		{% macro script(this, kwargs) %}
-			var {{this.get_name()}} = new L.TDHeatLayer(
-				{{ this.data_variable }},
-				{heatmapOptions: {{ this.options|tojson }}
-			});
-		{% endmacro %}
-		""".replace('\t', "    "),
-			)
