@@ -92,6 +92,11 @@
       this._polygons.forEach((p) => {
         p.bindPopup(content, options);
       });
+    },
+    polygonsSetOptions: function(options) {
+      this._polygons.forEach((p) => {
+        Object.assign(p.options, options);
+      });
     }
   });
 

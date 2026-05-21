@@ -65,4 +65,10 @@ export const PolyMarker = L.Marker.extend({
 			p.bindPopup(content, options);
 		});
 	},
+
+	polygonsSetOptions: function(options: L.PolylineOptions) {
+		this._polygons.forEach((p: L.Polygon) => {
+			Object.assign(p.options, options);
+		});
+	},
 });
