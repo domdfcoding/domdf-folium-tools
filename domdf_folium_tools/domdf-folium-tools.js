@@ -53,15 +53,15 @@
   // src/polymarker.ts
   var PolyMarker = L.Marker.extend({
     // TODO: highlight polygon when marker clicked
-    initialize: function(latlng, polyPoints, options) {
+    initialize: function(latlng, polyPoints, options, polygonOptions) {
       L.Marker.prototype.initialize.call(this, latlng, options);
       this._polygons = [];
       if (polyPoints) {
         polyPoints.forEach((p) => {
-          let polygonOptions = {};
           if (options.icon) {
             if ("markerColor" in options.icon.options) {
-              polygonOptions = { color: options.icon.options.markerColor };
+              const markerColour = options.icon.options.markerColor;
+              polygonOptions.color = markerColour;
             }
           }
           this._polygons.push(L.polygon(p, polygonOptions));

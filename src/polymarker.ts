@@ -9,16 +9,22 @@
  */
 export const PolyMarker = L.Marker.extend({
 	// TODO: highlight polygon when marker clicked
-	initialize: function(latlng: L.LatLng, polyPoints: L.LatLngExpression[][], options: L.MarkerOptions) {
+	initialize: function(
+		latlng: L.LatLng,
+		polyPoints: L.LatLngExpression[][],
+		options: L.MarkerOptions,
+		polygonOptions: L.PolylineOptions,
+	) {
 		// @ts-expect-error  // Thinks initialize doesn't exist but it does
 		L.Marker.prototype.initialize.call(this, latlng, options);
 		this._polygons = [];
 		if (polyPoints) {
 			polyPoints.forEach((p: L.LatLngExpression[]) => {
-				let polygonOptions = {};
 				if (options.icon) {
 					if ('markerColor' in options.icon.options) {
-						polygonOptions = { color: options.icon.options.markerColor };
+						// @ts-expect-error  // Doesn't know about extra markers
+						const markerColour: string = options.icon.options.markerColor;
+						polygonOptions.color = markerColour;
 					}
 				}
 				this._polygons.push(L.polygon(p, polygonOptions));
