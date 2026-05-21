@@ -96,9 +96,9 @@
         p.bindPopup(content, options);
       });
     },
-    polygonsSetOptions: function(options) {
+    polygonsSetStyle: function(options) {
       this._polygons.forEach((p) => {
-        Object.assign(p.options, options);
+        p.setStyle(options);
       });
     }
   });
