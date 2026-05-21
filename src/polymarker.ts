@@ -13,11 +13,16 @@ export const PolyMarker = L.Marker.extend({
 		latlng: L.LatLng,
 		polyPoints: L.LatLngExpression[][],
 		options: L.MarkerOptions,
-		polygonOptions: L.PolylineOptions,
+		polygonOptions?: L.PolylineOptions,
 	) {
 		// @ts-expect-error  // Thinks initialize doesn't exist but it does
 		L.Marker.prototype.initialize.call(this, latlng, options);
 		this._polygons = [];
+
+		if (!polygonOptions) {
+			polygonOptions = {};
+		}
+
 		if (polyPoints) {
 			polyPoints.forEach((p: L.LatLngExpression[]) => {
 				if (options.icon) {

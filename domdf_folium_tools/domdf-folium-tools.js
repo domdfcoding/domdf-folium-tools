@@ -56,6 +56,9 @@
     initialize: function(latlng, polyPoints, options, polygonOptions) {
       L.Marker.prototype.initialize.call(this, latlng, options);
       this._polygons = [];
+      if (!polygonOptions) {
+        polygonOptions = {};
+      }
       if (polyPoints) {
         polyPoints.forEach((p) => {
           if (options.icon) {
