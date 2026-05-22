@@ -6,11 +6,12 @@
  * @param cluster The Leaflet MarkerClusterGroup to add markers too.
  */
 export const MarkerGroup = L.Layer.extend({
-	initialize: function(cluster: typeof L.MarkerClusterGroup, _options?: L.LayerOptions) {
+	initialize: function(cluster: typeof L.MarkerClusterGroup, options?: L.LayerOptions) {
 		console.log('Initialize called');
 		// L.Layer.prototype.initialize.call(this, options);
 		this._markers = [];
 		this._marker_cluster = cluster;
+		L.Util.setOptions(this, options);
 	},
 
 	/**

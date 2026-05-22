@@ -2,10 +2,11 @@
 (() => {
   // src/markergroup.ts
   var MarkerGroup = L.Layer.extend({
-    initialize: function(cluster, _options) {
+    initialize: function(cluster, options) {
       console.log("Initialize called");
       this._markers = [];
       this._marker_cluster = cluster;
+      L.Util.setOptions(this, options);
     },
     /**
      * Add layers (markers) to the group and to the actual marker cluster.
