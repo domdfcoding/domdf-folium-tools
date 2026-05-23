@@ -94,8 +94,8 @@ export const PolyMarker = L.Marker.extend({
 
 	polygonsSetStyle: function(options: L.PolylineOptions) {
 		this._polygons.forEach((p: L.Polygon) => {
-			p.setStyle(options)
-		// 	Object.assign(p.options, options);
+			p.setStyle(options);
+			// Object.assign(p.options, options);
 		});
 	},
 });

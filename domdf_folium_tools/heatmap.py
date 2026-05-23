@@ -48,7 +48,7 @@ __all__ = [
 		"HeatMapWithTime",
 		"TimeDimensionControl",
 		"TimeDimensionState",
-		"validate_input_data"
+		"validate_input_data",
 		]
 
 # TODO: tojson filter that doesn't quote dict keys
