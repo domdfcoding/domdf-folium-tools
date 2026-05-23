@@ -74,23 +74,35 @@
     },
     onAdd: function(map) {
       console.log("Add polygons", this._polygons);
+      this._map = map;
       L.Marker.prototype.onAdd.call(this, map);
+      this.addPolygons();
+      return this;
+    },
+    addPolygons: function() {
+      if (!this._map) {
+        console.warn("Can't add polygons before the PolyMarker is added to the map.");
+        return;
+      }
       if (this._polygons) {
         this._polygons.forEach((p) => {
-          p.addTo(map);
+          p.addTo(this._map);
         });
       }
-      return this;
     },
     onRemove: function(map) {
       console.log("Remove polygons", this._polygons);
       L.Marker.prototype.onRemove.call(this, map);
+      this.removePolygons();
+      this._map = null;
+      return this;
+    },
+    removePolygons: function() {
       if (this._polygons) {
         this._polygons.forEach((p) => {
           p.remove();
         });
       }
-      return this;
     },
     polygonsBindPopup: function(content, options) {
       this._polygons.forEach((p) => {

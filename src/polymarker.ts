@@ -39,27 +39,40 @@ export const PolyMarker = L.Marker.extend({
 
 	onAdd: function(map: L.Map) {
 		console.log('Add polygons', this._polygons);
+		this._map = map;
 		L.Marker.prototype.onAdd.call(this, map);
-		if (this._polygons) {
-			this._polygons.forEach((p: L.Polygon) => {
-				p.addTo(map);
-			});
+		this.addPolygons();
+		return this;
+	},
+
+	addPolygons: function() {
+		if (!this._map) {
+			console.warn("Can't add polygons before the PolyMarker is added to the map.");
+			return;
 		}
 
-		return this;
+		if (this._polygons) {
+			this._polygons.forEach((p: L.Polygon) => {
+				p.addTo(this._map);
+			});
+		}
 	},
 
 	onRemove: function(map: L.Map) {
 		// TODO: if marker removed because offscreen the polygon goes too!
 		console.log('Remove polygons', this._polygons);
 		L.Marker.prototype.onRemove.call(this, map);
+		this.removePolygons();
+		this._map = null;
+		return this;
+	},
+
+	removePolygons: function() {
 		if (this._polygons) {
 			this._polygons.forEach((p: L.Polygon) => {
 				p.remove();
 			});
 		}
-
-		return this;
 	},
 
 	polygonsBindPopup: function(
