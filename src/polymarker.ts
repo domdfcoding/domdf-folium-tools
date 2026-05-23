@@ -6,6 +6,8 @@
  * @param latlng The coordinates of the marker.
  * @param polyPoints Array of arrays giving coordinates of the polygon(s) points.
  * @param options Standard L.Marker options.
+ * @param polygonOptions Standard L.Polygon options.
+ * @param showPolygons Show the polygon when adding the marker to the map (including via markercluster etc.)
  */
 export const PolyMarker = L.Marker.extend({
 	// TODO: highlight polygon when marker clicked
@@ -14,10 +16,12 @@ export const PolyMarker = L.Marker.extend({
 		polyPoints: L.LatLngExpression[][],
 		options: L.MarkerOptions,
 		polygonOptions?: L.PolylineOptions,
+		showPolygons: boolean = true,
 	) {
 		// @ts-expect-error  // Thinks initialize doesn't exist but it does
 		L.Marker.prototype.initialize.call(this, latlng, options);
 		this._polygons = [];
+		this.showPolygons = showPolygons;
 
 		if (!polygonOptions) {
 			polygonOptions = {};
@@ -38,10 +42,14 @@ export const PolyMarker = L.Marker.extend({
 	},
 
 	onAdd: function(map: L.Map) {
-		console.log('Add polygons', this._polygons);
 		this._map = map;
 		L.Marker.prototype.onAdd.call(this, map);
-		this.addPolygons();
+
+		if (this.showPolygons) {
+			console.log('Add polygons', this._polygons);
+			this.addPolygons();
+		}
+
 		return this;
 	},
 

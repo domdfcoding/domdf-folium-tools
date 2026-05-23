@@ -54,9 +54,10 @@
   // src/polymarker.ts
   var PolyMarker = L.Marker.extend({
     // TODO: highlight polygon when marker clicked
-    initialize: function(latlng, polyPoints, options, polygonOptions) {
+    initialize: function(latlng, polyPoints, options, polygonOptions, showPolygons = true) {
       L.Marker.prototype.initialize.call(this, latlng, options);
       this._polygons = [];
+      this.showPolygons = showPolygons;
       if (!polygonOptions) {
         polygonOptions = {};
       }
@@ -73,10 +74,12 @@
       }
     },
     onAdd: function(map) {
-      console.log("Add polygons", this._polygons);
       this._map = map;
       L.Marker.prototype.onAdd.call(this, map);
-      this.addPolygons();
+      if (this.showPolygons) {
+        console.log("Add polygons", this._polygons);
+        this.addPolygons();
+      }
       return this;
     },
     addPolygons: function() {
