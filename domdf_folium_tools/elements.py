@@ -28,16 +28,22 @@ Modified folium elements.
 
 # stdlib
 from collections import OrderedDict
-from typing import NamedTuple, TypeVar
+from collections.abc import Sequence
+from typing import NamedTuple, Optional, TypeVar, Union
 
 # 3rd party
 import branca.element
 import folium
+from folium.elements import JSCSSMixin
 from folium.template import Template
+from folium.utilities import TypeJsonValue, parse_options, remove_empty
+from folium.vector_layers import path_options
 
 __all__ = [
 		"add_to",
+		"Arrow",
 		"Components",
+		"ExtraMarkersIcon",
 		"NLSTileLayer",
 		"Preload",
 		"render_figure",
@@ -194,5 +200,120 @@ class Preload(branca.element.MacroElement):
 		<link rel="preload" href="{{ url }}" as="{{ load_as }}" />
 	{% endfor -%}
 {% endmacro -%}
+		""",
+			)
+
+
+class ExtraMarkersIcon(JSCSSMixin, folium.Icon):
+	r"""
+	Modified Folium icon that uses Leaflet.ExtraMarkers.
+
+	:param color: The color of the marker. Some colours may require ``svg=True``.
+	:param icon_color: The color of the drawing on the marker.
+	:param icon: The name of Font Awesome icon for the marker.
+	:param angle: The icon will be rotated by this amount of degrees.
+	:param prefix: The prefix states the source of the icon. 'fa' for font-awesome or 'glyphicon' for bootstrap 3.
+	:param \*\*kwargs: Other options for the icon.
+
+	https://github.com/coryasilva/Leaflet.ExtraMarkers
+	"""
+
+	default_js = [
+			(
+					"extra_markers_js",
+					"https://unpkg.com/leaflet-extra-markers@1.2.2/dist/js/leaflet.extra-markers.js",
+					),
+			]
+
+	default_css = [
+			(
+					"extra_markers_css",
+					"https://unpkg.com/leaflet-extra-markers@1.2.2/dist/css/leaflet.extra-markers.min.css",
+					),
+			]
+
+	_template = Template(
+			"""
+		{% macro script(this, kwargs) %}
+			var {{ this.get_name() }} = new L.ExtraMarkers.Icon(
+				{{ this.options|tojavascript }}
+			);
+		{% endmacro %}
+		""",
+			)
+
+	def __init__(
+			self,
+			color: str = "blue",
+			icon_color: str = "white",
+			icon: str = "fa-circle-info",
+			angle: int = 0,
+			prefix: str = "fa",
+			**kwargs: TypeJsonValue,
+			):
+		super().__init__()
+		self._name = "Icon"
+		self.options = remove_empty(
+				marker_color=color,
+				icon_color=icon_color,
+				icon=icon,
+				prefix=prefix,
+				extra_classes=f"fa-rotate-{angle}",
+				**kwargs,
+				)
+
+
+class Arrow(JSCSSMixin, folium.PolyLine):
+	r"""
+	Modified Folium PolyLine with an arrowhead at the end.
+
+	See :func:`folium.vector_layers.path_options` for the `Path` options.
+
+	:param locations: List of points ``(latitude, longitude)`` for the line.
+		Pass multiple sequences of coordinates for a multi-polyline.
+	:param popup: Input text or visualization for object displayed when clicking.
+	:param tooltip: Display a text when hovering over the object.
+	:param arrowhead_options: Options for the arrowhead.
+		See https://github.com/slutske22/leaflet-arrowheads#options
+	:param \*\*kwargs: Other valid (possibly inherited) options.
+		See https://leafletjs.com/reference.html#polyline
+	"""
+
+	default_js = [
+			(
+					"leaflet_geometryutil_js",
+					"https://cdn.jsdelivr.net/npm/leaflet-geometryutil@0.10.3/src/leaflet.geometryutil.min.js",
+					),
+			(
+					"leaflet_arrowheads_js",
+					"https://cdn.jsdelivr.net/npm/leaflet-arrowheads@1.4.0/src/leaflet-arrowheads.min.js",
+					),
+			]
+
+	def __init__(
+			self,
+			locations: Union[Sequence[tuple[float, float]], Sequence[Sequence[tuple[float, float]]]],
+			popup: Union[str, folium.Popup, None] = None,
+			tooltip: Union[str, folium.Tooltip, None] = None,
+			arrowhead_options: Optional[dict[str, TypeJsonValue]] = None,
+			**kwargs: TypeJsonValue,
+			):
+		super().__init__(locations, popup=popup, tooltip=tooltip)
+		self._name = "PolyLine"
+
+		# mypy is unhappy but it's like this in Folium itself
+		self.options = path_options(line=True, **kwargs)  # type: ignore[arg-type]
+
+		self.arrowhead_options = parse_options(**(arrowhead_options or {}))
+
+	_template = Template(
+			"""
+		{% macro script(this, kwargs) %}
+			var {{ this.get_name() }} = L.polyline(
+				{{ this.locations|tojson }},
+				{{ this.options|tojson }}
+			).addTo({{this._parent.get_name()}});
+			{{ this.get_name() }}.arrowheads({{ this.arrowhead_options|tojson }});
+		{% endmacro %}
 		""",
 			)
