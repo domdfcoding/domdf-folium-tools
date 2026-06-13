@@ -37,7 +37,13 @@ import folium
 from folium.elements import JSCSSMixin
 from folium.plugins import LocateControl as FoliumLocateControl
 from folium.template import Template
-from folium.utilities import TypeJsonValue, parse_options, remove_empty
+from folium.utilities import (
+		TypeJsonValue,
+		if_pandas_df_convert_to_numpy,
+		parse_options,
+		remove_empty,
+		validate_location
+		)
 from folium.vector_layers import path_options
 
 __all__ = [
@@ -380,3 +386,72 @@ class LocateControl(FoliumLocateControl):
 
 	def get_name(self) -> str:  # noqa: D102
 		return "locate_control"
+
+
+bezier_curve_syntax = Sequence[Union[str, Sequence[float]]]
+
+
+def _validate_locations(locations: bezier_curve_syntax) -> bezier_curve_syntax:
+	locations = if_pandas_df_convert_to_numpy(locations)
+	# _validate_locations_basics(locations)
+
+	validated_locations = []
+	for coord_pair in locations:
+		if isinstance(coord_pair, str) or len(coord_pair) == 1:
+			# TODO: check args match previous command (https://github.com/elfalem/Leaflet.curve)
+			validated_locations.append(coord_pair)
+		else:
+			validated_locations.append(validate_location(coord_pair))
+
+	return validated_locations
+
+
+class Curve(JSCSSMixin, folium.PolyLine):
+	r"""
+	Customised Folium PolyLine which draws bezier curves.
+
+	:param locations: See https://github.com/elfalem/Leaflet.curve for syntax.
+	:param popup: Input text or visualization for object displayed when clicking.
+	:param tooltip: Display a text when hovering over the object.
+	:param \*\*kwargs: Other valid (possibly inherited) options.
+		See https://github.com/elfalem/Leaflet.curve
+	"""
+
+	default_js = [
+			(
+					"leaflet_curve_js",
+					"https://cdn.jsdelivr.net/npm/@elfalem/leaflet-curve@0.9.2/dist/leaflet.curve.min.js",
+					),
+			]
+
+	_template = Template(
+			"""
+			{% macro script(this, kwargs) %}
+				var {{ this.get_name() }} = L.curve(
+					{{ this.locations|tojson }},
+					{{ this.options|tojson }}
+				).addTo({{this._parent.get_name()}});
+			{% endmacro %}
+			""",
+			)
+
+	# TODO: Trace option
+
+	locations: bezier_curve_syntax  # type: ignore[assignment]
+
+	def __init__(
+			self,
+			locations: bezier_curve_syntax,
+			popup: Union[str, folium.Popup, None] = None,
+			tooltip: Union[str, folium.Tooltip, None] = None,
+			**kwargs,
+			):
+		folium.MacroElement.__init__(self)
+		self.locations = _validate_locations(locations)
+		if popup is not None:
+			self.add_child(popup if isinstance(popup, folium.Popup) else folium.Popup(str(popup)))
+		if tooltip is not None:
+			self.add_child(tooltip if isinstance(tooltip, folium.Tooltip) else folium.Tooltip(str(tooltip)))
+
+		self._name = "Curve"
+		self.options = path_options(line=True, **kwargs)
