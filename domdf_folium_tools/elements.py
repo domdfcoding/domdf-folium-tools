@@ -35,6 +35,7 @@ from typing import NamedTuple, Optional, TypeVar, Union
 import branca.element
 import folium
 from folium.elements import JSCSSMixin
+from folium.plugins import LocateControl as FoliumLocateControl
 from folium.template import Template
 from folium.utilities import TypeJsonValue, parse_options, remove_empty
 from folium.vector_layers import path_options
@@ -44,6 +45,7 @@ __all__ = [
 		"Arrow",
 		"Components",
 		"ExtraMarkersIcon",
+		"LocateControl",
 		"NLSTileLayer",
 		"Preload",
 		"render_figure",
@@ -317,3 +319,64 @@ class Arrow(JSCSSMixin, folium.PolyLine):
 		{% endmacro %}
 		""",
 			)
+
+
+class LocateControl(FoliumLocateControl):
+	"""
+	Modified Folium LocateControl to geolocate the user.
+
+	Sets default options and updates the plugin version.
+	"""
+
+	default_css = [
+			(
+					"Control_locate_min_css",
+					"https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.90.0/dist/L.Control.Locate.min.css",
+					),
+			(
+					"fontawesome_css",
+					"https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css",
+					),
+			]
+	default_js = [
+			(
+					"Control_locate_min_js",
+					"https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.90.0/dist/L.Control.Locate.min.js",
+					),
+			]
+
+	_template = Template(
+			"""
+			{% macro header(this, kwargs) %}
+				<style>
+					.leaflet-control-locate {
+						a {
+							font-size: 1.4em;
+							.leaflet-locate-icon {
+								color: black
+							}
+						}
+					}
+				</style>
+			{% endmacro %}
+
+			{% macro script(this, kwargs) %}
+				var {{this.get_name()}} = L.control.locate(
+					{{this.options | tojson}}
+				).addTo({{ this._parent.get_name() }});
+				{% if this.auto_start %}
+					{{this.get_name()}}.start();
+				{% endif %}
+			{% endmacro %}
+			""",
+			)
+
+	def __init__(self):
+		super().__init__(
+				icon="fa-solid fa-location-crosshairs",
+				keepCurrentZoomLevel=[13, 18],
+				locateOptions={"enableHighAccuracy": True, "maxZoom": 16},
+				)
+
+	def get_name(self) -> str:  # noqa: D102
+		return "locate_control"
