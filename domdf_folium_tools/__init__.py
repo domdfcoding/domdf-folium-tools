@@ -32,9 +32,18 @@ from typing import Any, Literal, TypedDict, Union
 
 # 3rd party
 import folium
+from domdf_python_tools.paths import PathPlus
+from domdf_python_tools.typing import PathLike
 from folium.template import Template
 
-__all__ = ["Coordinates", "EmbeddedCSSJS", "FeatureCollection", "embed_styles", "set_branca_random_seed"]
+__all__ = [
+		"Coordinates",
+		"EmbeddedCSSJS",
+		"FeatureCollection",
+		"embed_styles",
+		"save_map",
+		"set_branca_random_seed",
+		]
 
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2026 Dominic Davis-Foster"
@@ -117,3 +126,19 @@ class FeatureCollection(TypedDict):
 
 	type: Literal["FeatureCollection"]
 	features: list[Any]  # TODO: type
+
+
+def save_map(m: folium.Map, filename: PathLike, **kwargs) -> None:
+	r"""
+	Save the given map to disk.
+
+	:param m:
+	:param filename:
+	:param \*\*kwargs: Additional options for ``root.render()``.
+	"""
+
+	root = m.get_root()
+	html = root.render(**kwargs)
+
+	# TODO: normalise indentation
+	PathPlus(filename).write_clean(html)
