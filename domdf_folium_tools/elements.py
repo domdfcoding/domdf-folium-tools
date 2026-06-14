@@ -374,7 +374,7 @@ class LocateControl(FoliumLocateControl):
 					{{this.get_name()}}.start();
 				{% endif %}
 			{% endmacro %}
-			""",
+			""".replace('\t', "    "),
 			)
 
 	def __init__(self):
@@ -426,13 +426,13 @@ class Curve(JSCSSMixin, folium.PolyLine):
 
 	_template = Template(
 			"""
-			{% macro script(this, kwargs) %}
-				var {{ this.get_name() }} = L.curve(
-					{{ this.locations|tojson }},
-					{{ this.options|tojson }}
-				).addTo({{this._parent.get_name()}});
-			{% endmacro %}
-			""",
+		{% macro script(this, kwargs) %}
+			var {{ this.get_name() }} = new L.Curve(
+				{{ this.locations|tojson }},
+				{{ this.options|tojson }}
+			).addTo({{this._parent.get_name()}});
+		{% endmacro %}
+		""",
 			)
 
 	# TODO: Trace option
