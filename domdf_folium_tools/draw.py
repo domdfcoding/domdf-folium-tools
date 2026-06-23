@@ -74,7 +74,7 @@ class CurveDraw(JSCSSMixin, MacroElement):
 	default_css = [
 			(
 					"leaflet_draw_css",
-					"https://cdn.jsdelivr.net/gh/qpincon/Leaflet.draw@curve_built/dist/leaflet.draw.css",
+					"https://cdn.jsdelivr.net/gh/domdfcoding/Leaflet.draw@curve_built/dist/leaflet.draw.css",
 					),
 			]
 
