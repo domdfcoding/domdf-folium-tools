@@ -100,7 +100,6 @@ class MarkerGroup(JSCSSMixin, Layer):  # noqa: PRM002
 	:param cluster The Leaflet MarkerClusterGroup to add markers too.
 	:param \*args: Positional arguments for the ``Layer`` class.
 	:param \*\*kwargs: Keyword arguments for the ``Layer`` class.
-
 	"""
 
 	_js_constructor = "new L.MarkerGroup"
