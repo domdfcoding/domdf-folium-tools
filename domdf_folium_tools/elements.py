@@ -27,6 +27,7 @@ Modified folium elements.
 #
 
 # stdlib
+import textwrap
 from collections import OrderedDict
 from collections.abc import Sequence
 from typing import NamedTuple, Optional, TypeVar, Union
@@ -50,6 +51,8 @@ __all__ = [
 		"add_to",
 		"Arrow",
 		"Components",
+		"Curve",
+		"CustomStyle",
 		"ExtraMarkersIcon",
 		"LocateControl",
 		"NLSTileLayer",
@@ -455,3 +458,26 @@ class Curve(JSCSSMixin, folium.PolyLine):
 
 		self._name = "Curve"
 		self.options = path_options(line=True, **kwargs)
+
+
+class CustomStyle(folium.MacroElement):
+	"""
+	Adds a custom style tag.
+
+	:param style: The CSS style rules.
+	"""
+
+	def __init__(self, style: str):
+		super().__init__()
+		self.style = textwrap.indent(style, "\t\t\t\t").rstrip()
+		self._name = "CustomStyle"
+
+	_template = Template(
+			"""
+		{% macro header(this, kwargs) %}
+			<style>
+				{{ this.style }}
+			</style>
+		{% endmacro %}
+		""",
+			)
