@@ -434,11 +434,22 @@ class Curve(JSCSSMixin, folium.PolyLine):
 				{{ this.locations|tojson }},
 				{{ this.options|tojson }}
 			).addTo({{this._parent.get_name()}});
+
+			{% if this.options.trace %}
+				{{this._parent._parent.get_name()}}.on("layeradd", (e) => {
+					if (e.layer === {{ this.get_name() }}) {
+						{{ this.get_name() }}.trace([0, 0.25, 0.75, 1]).forEach(i => L.circle(i, {radius: 2, color: 'green'}).addTo(e.sourceTarget));
+						// {{ this.get_name() }}.trace([0, 0.25, 0.75, 1]).forEach(i => new L.Marker(i, {icon: L.divIcon({html: "&gt;"})}).addTo(e.sourceTarget));
+						// {{ this.get_name() }}.trace([0, 0.25, 0.75, 1]).forEach(i => new L.Marker(i, {icon: L.ExtraMarkers.icon({svg: true, markerColor: "red", shadowSize:0})}).addTo(e.sourceTarget));
+						// {{ this.get_name() }}.trace([0, 0.25, 0.75, 1]).forEach(i => new L.Marker(i, {icon: new ArrowMarker({"svg": true, iconAnchor: [18,18], shadowSize:0})}).addTo(e.sourceTarget));
+					}
+				})
+			{% endif %}
 		{% endmacro %}
 		""",
 			)
 
-	# TODO: Trace option
+	# TODO: get map directly (get_root() doesn't do it)
 
 	locations: bezier_curve_syntax  # type: ignore[assignment]
 
@@ -447,6 +458,7 @@ class Curve(JSCSSMixin, folium.PolyLine):
 			locations: bezier_curve_syntax,
 			popup: Union[str, folium.Popup, None] = None,
 			tooltip: Union[str, folium.Tooltip, None] = None,
+			trace: bool = False,
 			**kwargs,
 			):
 		folium.MacroElement.__init__(self)
@@ -458,6 +470,7 @@ class Curve(JSCSSMixin, folium.PolyLine):
 
 		self._name = "Curve"
 		self.options = path_options(line=True, **kwargs)
+		self.options["trace"] = trace
 
 
 class CustomStyle(folium.MacroElement):
