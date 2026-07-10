@@ -416,6 +416,7 @@ class Curve(JSCSSMixin, folium.PolyLine):
 	:param locations: See https://github.com/elfalem/Leaflet.curve for syntax.
 	:param popup: Input text or visualization for object displayed when clicking.
 	:param tooltip: Display a text when hovering over the object.
+	:param trace: Mark the points along the curve.
 	:param \*\*kwargs: Other valid (possibly inherited) options.
 		See https://github.com/elfalem/Leaflet.curve
 	"""
